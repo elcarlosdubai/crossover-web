@@ -56,5 +56,8 @@ Cuando retomemos el proyecto, estas son las áreas a trabajar:
 3. **Integración de Instagram:** Habíamos conversado sobre poner un "feed" automático de Instagram en el Home. Queda pendiente decidir si usamos un Widget (como Elfsight) o conectamos la API oficial.
 4. **Formulario de Contacto:** Conectar el formulario de la página `/contacto` a un servicio como EmailJS, Formspree o Resend para que envíe correos reales cuando el cliente le dé a "Enviar Mensaje".
 
+5. **Optimización de Rendimiento (Imágenes):** Según PageSpeed Insights, el rendimiento en móviles es de 57/100 debido a imágenes pesadas (`secundaria.jpg`, `cielo.jpg`, etc.). Debemos comprimir las imágenes o convertirlas a formato WebP para aumentar el puntaje a +90.
+6. **Vercel Deployment:** La web ya está exitosamente vinculada a Vercel (`crossover-web-blond.vercel.app`) y está desplegando automáticamente cada vez que hacemos un `git push` a la rama `main`.
+
 ---
 *Fin del reporte.*
