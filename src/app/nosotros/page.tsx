@@ -50,7 +50,7 @@ export default function NosotrosPage() {
               </div>
               <h2 className="font-display text-3xl font-black text-on-background mb-4 uppercase tracking-widest">Nuestra Misión</h2>
               <p className="font-body text-on-background-muted text-lg leading-relaxed">
-                Formar individuos conscientes de sus condiciones y realidades, que con su formación contribuyan a la construcción de una patria mejor, fieles a Dios, a su familia y la comunidad.
+                Formar individuos conscientes de sus condiciones y realidades, que con su formación contribuyan a la construcción de una patria mejor. Fieles a Dios, a su familia y la comunidad.
               </p>
             </div>
           </div>

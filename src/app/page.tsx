@@ -28,9 +28,9 @@ const heroSlides = [
   },
   {
     tag: "Especialización Técnica",
-    title: "VANGUARDIA",
-    subtitle: "TÉCNICA.",
-    description: "Única institución que combina el bachillerato tradicional con certificaciones tecnológicas de clase mundial.",
+    title: "INNOVACIÓN",
+    subtitle: "Y FUTURO.",
+    description: "Integramos el bachillerato tradicional con certificaciones tecnológicas de clase mundial para formar a los profesionales del mañana.",
     bg: "https://lh3.googleusercontent.com/aida-public/AB6AXuCI-BOQ_aRhhlaJZeVfEK6Q8WgDW-U-OocC1nOJ67-ihWBM0-LjCrKh71P5RjDCdfT_aNCi5sp-io6yXc_FcZSp1aQPucWhiw_YKQV028JJmOcPiK9HvFbFojomLFVXjVnJ3Ehm1NuoZ2gFDLbmnT2XHmCHeMZ5yfbF1PYZq54pkBpu04-Ewuuc_un3VCQ95OgQZw79M9wXz8giUpi-0CmlL3LLSadbE98tgysRxylHbywPTBVUmM_xIrgcP6b6wFq-g7mxwFnkjSY"
   }
 ];
@@ -171,7 +171,7 @@ export default function Home() {
               NUESTRA <span className="text-primary">OFERTA.</span>
             </h2>
             <p className="text-on-background-muted text-lg sm:text-xl max-w-2xl font-light">
-              Programas diseñados para el desarrollo integral desde la infancia hasta la profesionalización técnica e industrial.
+              Programas diseñados para el desarrollo integral de tus hijos, acompañándolos desde la niñez hasta que se gradúan como técnicos profesionales listos para el mercado laboral.
             </p>
           </div>
 
