@@ -37,3 +37,12 @@
 ::-webkit-scrollbar-track { background: #ffffff; }
 ::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: #cc0000; }
+
+/* TipTap Placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

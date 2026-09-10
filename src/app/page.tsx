@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { getPublicSlides } from '@/app/actions/portada';
+
+
+
 
 // Datos para el Slider del Hero
 const heroSlides = [
@@ -48,51 +52,46 @@ const mockIgPosts = [
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [igPosts, setIgPosts] = useState(mockIgPosts);
+  const [slides, setSlides] = useState(heroSlides);
 
   useEffect(() => {
-    fetch('/api/instagram')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          const formatted = data.slice(0, 5).map((item: any) => ({
-            id: item.id,
-            img: item.media_type === 'VIDEO' ? (item.thumbnail_url || item.media_url) : item.media_url,
-            likes: "Ig",
-            comments: "Ver",
-            permalink: item.permalink
-          }));
-          setIgPosts(formatted);
-        }
-      })
-      .catch(err => console.error("Error loading IG posts:", err));
+    async function loadSlides() {
+      const publicSlides = await getPublicSlides();
+      if (publicSlides && publicSlides.length > 0) {
+        setSlides(publicSlides);
+      }
+    }
+    loadSlides();
+  }, []);
 
-    // Auto-play del Hero Slider
-    const slideInterval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
-    }, 5000); // Cambia cada 5 segundos
+  // Autoplay para el Slider
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
 
-    // Intersection Observer para fade-in
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: "0px 0px -50px 0px"
-    };
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('opacity-100', 'translate-y-0');
-          entry.target.classList.remove('opacity-0', 'translate-y-10');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
+  // Intersection Observer para animaciones en scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in-up');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
 
-    document.querySelectorAll('.animate-on-scroll').forEach(section => {
-      section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
-      observer.observe(section);
+    document.querySelectorAll('.animate-on-scroll').forEach((el) => {
+      observer.observe(el);
     });
 
-    return () => clearInterval(slideInterval);
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -102,7 +101,7 @@ export default function Home() {
       {/* Hero Section (Slider) */}
       <section className="relative min-h-screen flex flex-col justify-center pt-24 overflow-hidden bg-background">
         {/* Background Images Layer */}
-        {heroSlides.map((slide, index) => (
+        {slides.map((slide, index) => (
           <div 
             key={`bg-${index}`}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
@@ -116,7 +115,7 @@ export default function Home() {
         ))}
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full flex flex-col justify-center min-h-[60vh]">
-          {heroSlides.map((slide, index) => (
+          {slides.map((slide, index) => (
             <div 
               key={index} 
               className={`absolute top-1/2 -translate-y-1/2 left-6 md:left-12 max-w-5xl transition-all duration-1000 ease-in-out ${
@@ -129,7 +128,7 @@ export default function Home() {
                   {slide.tag}
                 </span>
               </div>
-              <h1 className="font-display text-5xl sm:text-6xl md:text-8xl lg:text-[8rem] font-black leading-[0.9] tracking-tighter text-on-background mb-6 sm:mb-8 transition-transform duration-700">
+              <h1 className="font-display text-5xl sm:text-6xl md:text-8xl lg:text-[6rem] xl:text-[7rem] font-black leading-[1.1] leading-[0.9] tracking-tighter text-on-background mb-6 sm:mb-8 transition-transform duration-700">
                 {slide.title}<br />
                 <span className="text-primary">{slide.subtitle}</span>
               </h1>
@@ -137,13 +136,17 @@ export default function Home() {
                 {slide.description}
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
-                <Link href="/contacto" className="bg-primary text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-body text-xs sm:text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_15px_30px_-10px_rgba(204,0,0,0.3)] hover:shadow-[0_20px_40px_-10px_rgba(204,0,0,0.4)] text-center">
-                  Solicitar Admisión
-                </Link>
-                <a href="#oferta" className="bg-surface text-on-background border border-black/5 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-body text-xs sm:text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:bg-black/5 text-center block">
-                  Ver Programas
-                </a>
+                                          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
+                {slide.btnText && (
+                  <Link href={slide.btnLink || "#"} className="bg-primary text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-body text-xs sm:text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_15px_30px_-10px_rgba(204,0,0,0.3)] hover:shadow-[0_20px_40px_-10px_rgba(204,0,0,0.4)] text-center">
+                    {slide.btnText}
+                  </Link>
+                )}
+                {slide.btn2Text && (
+                  <Link href={slide.btn2Link || "#"} className="bg-surface text-on-background border border-black/5 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-body text-xs sm:text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:bg-black/5 text-center">
+                    {slide.btn2Text}
+                  </Link>
+                )}
               </div>
             </div>
           ))}
@@ -151,7 +154,7 @@ export default function Home() {
 
         {/* Slide Indicators */}
         <div className="absolute bottom-12 left-6 md:left-12 flex gap-3 z-20">
-          {heroSlides.map((_, index) => (
+          {slides.map((_, index) => (
             <button 
               key={index} 
               onClick={() => setCurrentSlide(index)}

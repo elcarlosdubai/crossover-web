@@ -1,7 +1,12 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <footer className="bg-primary pt-24 sm:pt-32 pb-12 relative overflow-hidden">
       {/* Massive background logo watermark */}
@@ -77,7 +82,7 @@ export default function Footer() {
 
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/20 gap-4">
           <p className="font-body text-xs sm:text-sm text-white/80 font-medium text-center md:text-left">
-            © {new Date().getFullYear()} Centro Educativo Crossover. Todos los derechos reservados.
+            © {new Date().getFullYear()} Centro Educativo Crossover. Todos los derechos reservados. <Link href="/admin" className="ml-4 hover:text-white transition-colors" title="Acceso Administrativo">🔒</Link>
           </p>
           <div className="flex gap-6 sm:gap-8">
             <span className="font-body text-xs sm:text-sm text-white/80 font-bold hover:text-white cursor-pointer transition-colors">Privacidad</span>
