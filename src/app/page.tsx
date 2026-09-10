@@ -8,8 +8,20 @@ import { getPublicSlides } from '@/app/actions/portada';
 
 
 
+interface SlideData {
+  tag: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  bg: string;
+  btnText?: string;
+  btnLink?: string;
+  btn2Text?: string;
+  btn2Link?: string;
+}
+
 // Datos para el Slider del Hero
-const heroSlides = [
+const heroSlides: SlideData[] = [
   {
     tag: "Colegio e Instituto de Élite",
     title: "EDUCACIÓN",
@@ -52,7 +64,7 @@ const mockIgPosts = [
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [igPosts, setIgPosts] = useState(mockIgPosts);
-  const [slides, setSlides] = useState(heroSlides);
+  const [slides, setSlides] = useState<SlideData[]>(heroSlides);
 
   useEffect(() => {
     async function loadSlides() {
