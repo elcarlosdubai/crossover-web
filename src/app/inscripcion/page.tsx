@@ -163,7 +163,7 @@ export default function InscripcionPage() {
       );
     }
 
-    let schedule = [];
+    let schedule: string[] = [];
     if (activeCourse.includes("5-7 años")) {
       schedule = ["Sábados | 8:30am a 12:00pm (Duración 9 meses)"];
     } else if (activeCourse.includes("7-12 años")) {
@@ -382,7 +382,7 @@ export default function InscripcionPage() {
       );
     }
 
-    let schedule = [];
+    let schedule: string[] = [];
     if (activeCourse === "Basketball") {
       schedule = [
         "Jueves | 2:00pm - 4:00pm (6 a 12 años)",
