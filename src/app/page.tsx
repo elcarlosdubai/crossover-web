@@ -76,6 +76,7 @@ export default function Home() {
     loadSlides();
   }, []);
 
+
   // Autoplay para el Slider
   useEffect(() => {
     const timer = setInterval(() => {
@@ -83,6 +84,26 @@ export default function Home() {
     }, 5000);
     return () => clearInterval(timer);
   }, [slides.length]);
+
+  // RESTAURADO: API de Instagram del usuario
+  useEffect(() => {
+    fetch('/api/instagram')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const formatted = data.slice(0, 5).map((item: any) => ({
+            id: item.id,
+            img: item.media_type === 'VIDEO' ? (item.thumbnail_url || item.media_url) : item.media_url,
+            likes: "Ig",
+            comments: "Ver",
+            permalink: item.permalink
+          }));
+          setIgPosts(formatted);
+        }
+      })
+      .catch(err => console.error("Error loading IG posts:", err));
+  }, []);
+
 
 
   // Intersection Observer para animaciones en scroll
