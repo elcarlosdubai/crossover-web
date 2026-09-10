@@ -54,11 +54,11 @@ const heroSlides: SlideData[] = [
 
 // Datos Simulados para Instagram
 const mockIgPosts = [
-  { id: 1, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDY8zTgaXvxBi8uts6nUC4ZVfCEDZ0gQALy2vAM2KXtT90VcK3fckz9T8i-LNB8lccn5c702h6UmixM1f4Ksltc6LVdr3jpqzt6sHXeJDdRf1-l9K32hZpl1cidMuOq-0q4ZbLwwTaN6M6F7cMTPAWe0f3cCiuhk1vgOTCvI6aWgpYSnli8Nrer1Khj3HM6hu7leqkP7_DBohdGDvYTT45JkmzsewvTrryRhSBxREh9tes9FuCQthvRAmo0blS6-iyv9aCndwEPSfc", likes: "1.2k", comments: "45", permalink: "#" },
-  { id: 2, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBwBV0G-BQvbf570qjtCjPUwgUwUKGIk4bDihQP0QVy8VJa1jfiJjzyT7Q6o3bT9QiPEiQfK7IogoWpagX8Ou4weBd4i-_SOQXf1E7c4X6MEWtIEkc3Oss-nSNcYjcs_KBXh7tybrcOF4mW-f4ZhpnaRgGF2KUA30qgh6sDgm86OVyTzYKVzcjJBZ8ZaZx2eWBOurt0KNyFaCsEMOWUYGnUi5YU_AshMptlBiMHFN0Bni251e6NI-2NOvi0rL_XGV5c_rGu3Sfz-IY", likes: "856", comments: "12", permalink: "#" },
-  { id: 3, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuATHycRDkpQ2DaEMQjRKZvk8pZDwGmj3w7IuHGHi2yNrFznn8BigC8WW5zb4GtXF3KgiT59Niv0LHvQnIWZufbjA7H9B1BgwA_U7sKDfgqzOXJ1W4NzKRZdWfgn-nUGybRZ4HSZ1wUzOFvvqUnFdyQUBTJ5LTB543yvqOZYlXUhf4AkKn1Ls4_GPQds2KsMDowJYXaaROyFAneom7H6huf1ksKvcJsgPeDuzBpkyi8gANmHniW9WWNpEZ7oAqINxy3IgGjoO_44xQk", likes: "2.1k", comments: "89", permalink: "#" },
-  { id: 4, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDlC4GrldPv4jwVeGoFzfBxBkOeHtTDxez_Oz1sMlQ5lfHdG7fyg_g4xrLt8hcvgjS0fQgwxXb_4xapzw2f3pAUYmxueypiD7ehH1Jpro18L2qygfAVIr3fHhbEeXf2qSr2h45V2j6f2HIdJTudrRbM20IYu_CuYwA26DwfaGB8dmT7b35OuLX2Cx0B8KhbQvtdce9hFcFMXkO5b2SFJxfXjt5XL5oLMiFg7VmABewS-wYeaTVLKvHVnuxyiKGNyjjOnsHZu2BDqeE", likes: "945", comments: "23", permalink: "#" },
-  { id: 5, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD5B6CpcV2aNLUYJBLEVvCEPbdhsr2DmsuurbwqvLcwiIMdzJVTf7SWL0K6h43UNNu0xl54JMBSQCUPryqy_8g8F7LrhNW7yu0wSTiSuYZrjtlWzm2t0PjmPvFl43L2xwhaEyEVqIYewpmWKwi4hECjYIQHXpzKkCjb3wKDsCw_bJP0SzC6LuXrhyMWsbHeuoQ_Ix11SaP1v5RD1o-jOJjHauU3omWhwSkvK1g33AjouT86WRUKsdX00aWk14k0xB9wJrGKWk6OTps", likes: "1.5k", comments: "56", permalink: "#" },
+  { id: 1, img: "/1crossover.jpg", likes: "1.2k", comments: "45", permalink: "#" },
+  { id: 2, img: "/2crossover.jpg", likes: "856", comments: "12", permalink: "#" },
+  { id: 3, img: "/3crossover.jpg", likes: "2.1k", comments: "89", permalink: "#" },
+  { id: 4, img: "/secundaria.jpg", likes: "945", comments: "23", permalink: "#" },
+  { id: 5, img: "/1crossover.jpg", likes: "1.5k", comments: "56", permalink: "#" },
 ];
 
 export default function Home() {
