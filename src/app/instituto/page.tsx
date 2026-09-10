@@ -4,60 +4,78 @@ import Link from "next/link";import React, { useState } from "react";
   const cursosIdiomas = [
     {
       nombre: "Inglés Básico Niños (5-7 años)",
-      descripcion: "A través de juegos y dinámicas, los niños pierden el miedo a hablar de forma natural, sentando las bases del idioma desde temprana edad.",
-      icono: "child_care",
+      desc: "A través de juegos y dinámicas, los niños pierden el miedo a hablar de forma natural, sentando las bases del idioma desde temprana edad.",
+      icon: "child_care",
       duracion: "9 meses",
       horarios: ["Sábados | 8:30am a 12:00pm"],
       precio: "RD$ 1,600 / mes",
-      linkParams: "?area=instituto&curso=Inglés+Básico+Niños+(5-7+años)"
+      linkParams: "?area=instituto&curso=Inglés+Básico+Niños+(5-7+años)",
+      color: "bg-orange-500",
+      shadow: "shadow-orange-500/50",
+      text_color: "text-orange-500"
     },
     {
       nombre: "Inglés Básico Niños (7-12 años)",
-      descripcion: "100% conversacional e interactivo. Uso de juegos de rol y dinámicas grupales para asegurar fluidez y confianza.",
-      icono: "face",
+      desc: "100% conversacional e interactivo. Uso de juegos de rol y dinámicas grupales para asegurar fluidez y confianza.",
+      icon: "face",
       duracion: "18 meses",
-      horarios: ["Martes y Jueves | 3:00pm - 4:30pm", "Martes y Jueves | 4:30pm - 6:00pm", "Sábados | 8:30am - 12:00pm", "Sábados | 1:00pm - 4:00pm"],
+      horarios: ["Martes y Jueves | 3:00pm - 4:30pm", "Martes y Jueves | 4:30pm - 6:00pm", "Sábados | 8:30am a 12:00pm", "Sábados | 1:00pm - 4:00pm"],
       precio: "RD$ 1,600 / mes",
-      linkParams: "?area=instituto&curso=Inglés+Básico+Niños+(7-12+años)"
+      linkParams: "?area=instituto&curso=Inglés+Básico+Niños+(7-12+años)",
+      color: "bg-blue-500",
+      shadow: "shadow-blue-500/50",
+      text_color: "text-blue-500"
     },
     {
       nombre: "Inglés Adolescentes (13-17 años)",
-      descripcion: "Enfoque en debates, cultura pop y temas actuales para desarrollar una comunicación asertiva bilingüe.",
-      icono: "school",
+      desc: "Enfoque en debates, cultura pop y temas actuales para desarrollar una comunicación asertiva bilingüe.",
+      icon: "school",
       duracion: "12 meses",
-      horarios: ["Martes y Jueves | 3:00pm - 4:30pm", "Martes y Jueves | 4:30pm - 6:00pm", "Sábados | 8:30am - 12:00pm", "Sábados | 1:00pm - 4:00pm", "Sábados | 4:00pm - 7:00pm"],
+      horarios: ["Martes y Jueves | 3:00pm - 4:30pm", "Martes y Jueves | 4:30pm - 6:00pm", "Sábados | 8:30am a 12:00pm", "Sábados | 1:00pm - 4:00pm", "Sábados | 4:00pm - 7:00pm"],
       precio: "RD$ 1,600 / mes",
-      linkParams: "?area=instituto&curso=Inglés+Adolescentes+(13-17+años)"
+      linkParams: "?area=instituto&curso=Inglés+Adolescentes+(13-17+años)",
+      color: "bg-emerald-500",
+      shadow: "shadow-emerald-500/50",
+      text_color: "text-emerald-500"
     },
     {
       nombre: "Inglés Adultos (18+ años)",
-      descripcion: "Simulaciones de entornos laborales, redacción de correos y vocabulario profesional para potenciar tu currículum.",
-      icono: "work",
+      desc: "Simulaciones de entornos laborales, redacción de correos y vocabulario profesional para potenciar tu currículum.",
+      icon: "work",
       duracion: "12 meses",
       horarios: ["Martes y Jueves | 6:30pm - 8:00pm", "Sábados | 1:00pm - 4:00pm", "Sábados | 4:00pm - 7:00pm"],
       precio: "RD$ 1,600 / mes",
-      linkParams: "?area=instituto&curso=Inglés+Adultos+(18%2B+años)"
+      linkParams: "?area=instituto&curso=Inglés+Adultos+(18%2B+años)",
+      color: "bg-purple-500",
+      shadow: "shadow-purple-500/50",
+      text_color: "text-purple-500"
     }
   ];
 
   const cursosTecnicos = [
     {
       nombre: "Informática Básica",
-      descripcion: "Dominio del Paquete de Oficina (Word, Excel, PowerPoint) y navegación web segura. Indispensable para el mundo moderno.",
-      icono: "computer",
+      desc: "Dominio del Paquete de Oficina (Word, Excel, PowerPoint) y navegación web segura. Indispensable para el mundo moderno.",
+      icon: "computer",
       duracion: "3 meses",
       horarios: ["Sábados | 8:30am a 12:00pm", "Sábados | 1:00pm a 4:00pm"],
       precio: "RD$ 1,600 / mes",
-      linkParams: "?area=instituto&curso=Informática+Básica"
+      linkParams: "?area=instituto&curso=Informática+Básica",
+      color: "bg-teal-500",
+      shadow: "shadow-teal-500/50",
+      text_color: "text-teal-500"
     },
     {
       nombre: "Informática Avanzada",
-      descripcion: "Profundiza en Word/Excel avanzado y fundamentos de Redes. Basado en proyectos prácticos reales.",
-      icono: "devices",
+      desc: "Profundiza en Word/Excel avanzado y fundamentos de Redes. Basado en proyectos prácticos reales.",
+      icon: "devices",
       duracion: "3 meses",
       horarios: ["Sábados | 8:30am a 12:00pm", "Sábados | 1:00pm a 4:00pm"],
       precio: "RD$ 1,600 / mes",
-      linkParams: "?area=instituto&curso=Informática+Avanzada"
+      linkParams: "?area=instituto&curso=Informática+Avanzada",
+      color: "bg-indigo-500",
+      shadow: "shadow-indigo-500/50",
+      text_color: "text-indigo-500"
     }
   ];
 
