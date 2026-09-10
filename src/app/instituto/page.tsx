@@ -1,48 +1,65 @@
 "use client";
-import React, { useState } from "react";
+import Link from "next/link";import React, { useState } from "react";
 
-const cursosIdiomas = [
-  { 
-    nombre: "Inglés para Niños", 
-    icon: "celebration", 
-    desc: "A través de juegos, música y actividades dinámicas, los niños pierden el miedo a hablar y absorben el idioma de forma natural.", 
-    color: "bg-orange-500", 
-    shadow: "shadow-orange-500/50",
-    text_color: "text-orange-500",
-    metodologia: "100% conversacional e interactivo. Uso de canciones, juegos de rol y dinámicas grupales para que aprendan sin darse cuenta.",
-    horarios: "Sábados de 9:00 AM a 1:00 PM o de 2:00 PM a 6:00 PM."
-  },
-  { 
-    nombre: "Inglés para Jóvenes", 
-    icon: "school", 
-    desc: "Diseñado para adolescentes que buscan reforzar su nivel del colegio o adquirir fluidez y confianza al hablar.", 
-    color: "bg-blue-500", 
-    shadow: "shadow-blue-500/50",
-    text_color: "text-blue-500",
-    metodologia: "Enfoque en debates, proyectos y temas actuales relevantes para su edad para mantener su interés.",
-    horarios: "Martes y Jueves de 4:00 PM a 6:00 PM / Sábados en la mañana."
-  },
-  { 
-    nombre: "Inglés para Adultos", 
-    icon: "work", 
-    desc: "Ideal para profesionales que necesitan el idioma para crecer laboralmente o prepararse para entrevistas.", 
-    color: "bg-emerald-500", 
-    shadow: "shadow-emerald-500/50",
-    text_color: "text-emerald-500",
-    metodologia: "Simulaciones de entornos laborales, redacción de correos y presentaciones en público.",
-    horarios: "Lunes y Miércoles de 7:00 PM a 9:00 PM / Domingos intensivos."
-  },
-];
+  const cursosIdiomas = [
+    {
+      nombre: "Inglés Básico Niños (5-7 años)",
+      descripcion: "A través de juegos y dinámicas, los niños pierden el miedo a hablar de forma natural, sentando las bases del idioma desde temprana edad.",
+      icono: "child_care",
+      duracion: "9 meses",
+      horarios: ["Sábados | 8:30am a 12:00pm"],
+      precio: "RD$ 1,600 / mes",
+      linkParams: "?area=instituto&curso=Inglés+Básico+Niños+(5-7+años)"
+    },
+    {
+      nombre: "Inglés Básico Niños (7-12 años)",
+      descripcion: "100% conversacional e interactivo. Uso de juegos de rol y dinámicas grupales para asegurar fluidez y confianza.",
+      icono: "face",
+      duracion: "18 meses",
+      horarios: ["Martes y Jueves | 3:00pm - 4:30pm", "Martes y Jueves | 4:30pm - 6:00pm", "Sábados | 8:30am - 12:00pm", "Sábados | 1:00pm - 4:00pm"],
+      precio: "RD$ 1,600 / mes",
+      linkParams: "?area=instituto&curso=Inglés+Básico+Niños+(7-12+años)"
+    },
+    {
+      nombre: "Inglés Adolescentes (13-17 años)",
+      descripcion: "Enfoque en debates, cultura pop y temas actuales para desarrollar una comunicación asertiva bilingüe.",
+      icono: "school",
+      duracion: "12 meses",
+      horarios: ["Martes y Jueves | 3:00pm - 4:30pm", "Martes y Jueves | 4:30pm - 6:00pm", "Sábados | 8:30am - 12:00pm", "Sábados | 1:00pm - 4:00pm", "Sábados | 4:00pm - 7:00pm"],
+      precio: "RD$ 1,600 / mes",
+      linkParams: "?area=instituto&curso=Inglés+Adolescentes+(13-17+años)"
+    },
+    {
+      nombre: "Inglés Adultos (18+ años)",
+      descripcion: "Simulaciones de entornos laborales, redacción de correos y vocabulario profesional para potenciar tu currículum.",
+      icono: "work",
+      duracion: "12 meses",
+      horarios: ["Martes y Jueves | 6:30pm - 8:00pm", "Sábados | 1:00pm - 4:00pm", "Sábados | 4:00pm - 7:00pm"],
+      precio: "RD$ 1,600 / mes",
+      linkParams: "?area=instituto&curso=Inglés+Adultos+(18%2B+años)"
+    }
+  ];
 
-const cursosTecnicos = [
-  { nombre: "Informática y Computadoras", icon: "computer", desc: "Manejo de Office, Windows, Internet y herramientas digitales básicas para el entorno laboral.", color: "bg-blue-500", shadow: "shadow-blue-500/50", text_color: "text-blue-500", metodologia: "Práctica 100% en laboratorio. Un estudiante por computadora.", horarios: "Sábados o Domingos (4 horas a la semana)." },
-  { nombre: "Secretariado Ejecutivo", icon: "desk", desc: "Redacción comercial, archivo, servicio al cliente y gestión eficiente de oficinas.", color: "bg-pink-500", shadow: "shadow-pink-500/50", text_color: "text-pink-500", metodologia: "Estudio de casos reales, simulaciones de atención telefónica y redacción.", horarios: "Sábados en la tarde." },
-  { nombre: "Contabilidad Básica", icon: "calculate", desc: "Principios contables, manejo de libros, nómina y transacciones financieras diarias.", color: "bg-emerald-500", shadow: "shadow-emerald-500/50", text_color: "text-emerald-500", metodologia: "Ejercicios prácticos con comprobantes y software contable básico.", horarios: "Domingos en la mañana." },
-  { nombre: "Ventas y Servicio al Cliente", icon: "support_agent", desc: "Técnicas de persuasión, fidelización de clientes y manejo de quejas.", color: "bg-orange-500", shadow: "shadow-orange-500/50", text_color: "text-orange-500", metodologia: "Role-play (juegos de rol) y análisis de videos de situaciones de ventas.", horarios: "Martes y Jueves nocturno." },
-  { nombre: "Cajero Bancario", icon: "point_of_sale", desc: "Operaciones de caja, detección de billetes falsos y cuadre diario.", color: "bg-teal-500", shadow: "shadow-teal-500/50", text_color: "text-teal-500", metodologia: "Práctica con máquinas contadoras, detectores de billetes y simulador de caja.", horarios: "Sábados intensivos." },
-  { nombre: "Mercadeo Digital", icon: "campaign", desc: "Redes sociales, publicidad online y estrategias de posicionamiento web.", color: "bg-violet-500", shadow: "shadow-violet-500/50", text_color: "text-violet-500", metodologia: "Creación de campañas reales en Facebook e Instagram Ads.", horarios: "Miércoles y Viernes en la tarde." },
-  { nombre: "Emprendimiento", icon: "lightbulb", desc: "De la idea al negocio: plan de negocios, finanzas para startups y registro.", color: "bg-yellow-500", shadow: "shadow-yellow-500/50", text_color: "text-yellow-500", metodologia: "Desarrollo de un plan de negocio funcional guiado paso a paso.", horarios: "Sábados en la mañana." },
-];
+  const cursosTecnicos = [
+    {
+      nombre: "Informática Básica",
+      descripcion: "Dominio del Paquete de Oficina (Word, Excel, PowerPoint) y navegación web segura. Indispensable para el mundo moderno.",
+      icono: "computer",
+      duracion: "3 meses",
+      horarios: ["Sábados | 8:30am a 12:00pm", "Sábados | 1:00pm a 4:00pm"],
+      precio: "RD$ 1,600 / mes",
+      linkParams: "?area=instituto&curso=Informática+Básica"
+    },
+    {
+      nombre: "Informática Avanzada",
+      descripcion: "Profundiza en Word/Excel avanzado y fundamentos de Redes. Basado en proyectos prácticos reales.",
+      icono: "devices",
+      duracion: "3 meses",
+      horarios: ["Sábados | 8:30am a 12:00pm", "Sábados | 1:00pm a 4:00pm"],
+      precio: "RD$ 1,600 / mes",
+      linkParams: "?area=instituto&curso=Informática+Avanzada"
+    }
+  ];
 
 export default function InstitutoPage() {
   const [activeTab, setActiveTab] = useState("idiomas");
@@ -52,8 +69,8 @@ export default function InstitutoPage() {
     <main className="bg-background min-h-screen pt-24 selection:bg-primary selection:text-white pb-24 relative">
       {/* Hero Section */}
       <section className="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/cielo.jpg')" }}></div>
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/1crossover.jpg')" }}></div>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
         <div className="relative z-10 text-center px-6">
           <h1 className="text-white font-display text-5xl md:text-7xl font-black tracking-tight uppercase mb-4">
             Instituto Técnico
@@ -180,11 +197,11 @@ export default function InstitutoPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 md:gap-8">
               {cursosTecnicos.map((curso, idx) => (
                 <div 
                   key={idx} 
-                  className="glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl group cursor-pointer"
+                  className="w-full md:max-w-md glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl group cursor-pointer"
                   onClick={() => setSelectedItem(curso)}
                 >
                   <div className={`absolute top-0 left-0 w-full h-1.5 ${curso.color}`}></div>
@@ -210,9 +227,9 @@ export default function InstitutoPage() {
                 <h4 className="font-display text-2xl font-bold text-on-background mb-2">¿No encuentras lo que buscas?</h4>
                 <p className="text-on-background-muted">Constantemente abrimos nuevas ofertas formativas. Contáctanos para conocer los próximos cursos.</p>
               </div>
-              <button className="whitespace-nowrap px-8 py-3 rounded-full font-bold text-sm uppercase tracking-widest border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors duration-300">
-                Contactar Ahora
-              </button>
+              <a href="https://wa.me/18099220880" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 whitespace-nowrap px-8 py-3 rounded-full font-bold text-sm uppercase tracking-widest border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-colors duration-300 shadow-lg">
+                <span className="material-symbols-outlined">chat</span> Escribir por WhatsApp
+              </a>
             </div>
           </div>
         )}
@@ -260,14 +277,20 @@ export default function InstitutoPage() {
                   <span className={`material-symbols-outlined ${selectedItem.text_color}`}>schedule</span>
                   Horarios Disponibles
                 </h4>
-                <p className="text-on-background-muted">{selectedItem.horarios}</p>
+                <div className="text-on-background-muted text-sm space-y-1">
+                  {Array.isArray(selectedItem.horarios) ? (
+                    selectedItem.horarios.map((h: string, idx: number) => <p key={idx}>{h}</p>)
+                  ) : (
+                    <p>{selectedItem.horarios}</p>
+                  )}
+                </div>
               </div>
             </div>
             
             <div className="mt-10 flex gap-4">
-              <button className={`flex-1 py-4 rounded-full text-white font-bold uppercase tracking-widest text-sm shadow-lg transition-transform hover:scale-105 ${selectedItem.color} ${selectedItem.shadow}`}>
+              <Link href={`/inscripcion${selectedItem.linkParams || ''}`} className={`flex-1 py-4 text-center rounded-full text-white font-bold uppercase tracking-widest text-sm shadow-lg transition-transform hover:scale-105 block ${selectedItem.color} ${selectedItem.shadow}`}>
                 Inscribirme
-              </button>
+              </Link>
             </div>
           </div>
         </div>

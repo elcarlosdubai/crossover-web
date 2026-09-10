@@ -4,11 +4,12 @@ export default function ContactoPage() {
   const extensions = [
     { name: "Recepción", ext: "100", icon: "support_agent" },
     { name: "Caja", ext: "101", icon: "point_of_sale" },
-    { name: "Institute", ext: "102", icon: "language" },
-    { name: "Inicial", ext: "103", icon: "child_care" },
-    { name: "Media", ext: "104", icon: "school" },
-    { name: "Básica", ext: "106", icon: "local_library" },
-    { name: "Papelería", ext: "107", icon: "edit_document" },
+    { name: "Instituto", ext: "102", icon: "language" },
+    { name: "Inicial / Semi-Int.", ext: "103", icon: "child_care" },
+    { name: "Primaria 2do Ciclo", ext: "106", icon: "menu_book" },
+    { name: "Primaria 1er Ciclo", ext: "110", icon: "local_library" },
+    { name: "Secundaria", ext: "113", icon: "school" },
+    { name: "Inglés Inmersión", ext: "114", icon: "record_voice_over" },
   ];
 
   return (

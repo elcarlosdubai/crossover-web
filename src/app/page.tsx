@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 // Datos para el Slider del Hero
 const heroSlides = [
@@ -10,44 +11,61 @@ const heroSlides = [
     title: "EDUCACIÓN",
     subtitle: "DEL MAÑANA.",
     description: "Formamos la próxima generación de líderes íntegros en un ecosistema de alto rendimiento académico y tecnológico.",
-    bg: "https://lh3.googleusercontent.com/aida-public/AB6AXuDY8zTgaXvxBi8uts6nUC4ZVfCEDZ0gQALy2vAM2KXtT90VcK3fckz9T8i-LNB8lccn5c702h6UmixM1f4Ksltc6LVdr3jpqzt6sHXeJDdRf1-l9K32hZpl1cidMuOq-0q4ZbLwwTaN6M6F7cMTPAWe0f3cCiuhk1vgOTCvI6aWgpYSnli8Nrer1Khj3HM6hu7leqkP7_DBohdGDvYTT45JkmzsewvTrryRhSBxREh9tes9FuCQthvRAmo0blS6-iyv9aCndwEPSfc"
+    bg: "/1crossover.jpg"
   },
   {
     tag: "Educación Inicial y Primaria",
     title: "DESCUBRE",
     subtitle: "SU POTENCIAL.",
     description: "Fomentamos la curiosidad y la alegría por aprender desde los primeros años en un ambiente seguro e inspirador.",
-    bg: "/ninos_slider.jpg"
+    bg: "/3crossover.jpg"
   },
   {
     tag: "Metodología Innovadora",
     title: "LÍDERES EN",
     subtitle: "FORMACIÓN.",
     description: "Desarrollamos el potencial humano a través del aprendizaje activo, valores sólidos y disciplina deportiva.",
-    bg: "https://lh3.googleusercontent.com/aida-public/AB6AXuATHycRDkpQ2DaEMQjRKZvk8pZDwGmj3w7IuHGHi2yNrFznn8BigC8WW5zb4GtXF3KgiT59Niv0LHvQnIWZufbjA7H9B1BgwA_U7sKDfgqzOXJ1W4NzKRZdWfgn-nUGybRZ4HSZ1wUzOFvvqUnFdyQUBTJ5LTB543yvqOZYlXUhf4AkKn1Ls4_GPQds2KsMDowJYXaaROyFAneom7H6huf1ksKvcJsgPeDuzBpkyi8gANmHniW9WWNpEZ7oAqINxy3IgGjoO_44xQk"
+    bg: "/2crossover.jpg"
   },
   {
     tag: "Especialización Técnica",
     title: "INNOVACIÓN",
     subtitle: "Y FUTURO.",
     description: "Integramos el bachillerato tradicional con certificaciones tecnológicas de clase mundial para formar a los profesionales del mañana.",
-    bg: "https://lh3.googleusercontent.com/aida-public/AB6AXuCI-BOQ_aRhhlaJZeVfEK6Q8WgDW-U-OocC1nOJ67-ihWBM0-LjCrKh71P5RjDCdfT_aNCi5sp-io6yXc_FcZSp1aQPucWhiw_YKQV028JJmOcPiK9HvFbFojomLFVXjVnJ3Ehm1NuoZ2gFDLbmnT2XHmCHeMZ5yfbF1PYZq54pkBpu04-Ewuuc_un3VCQ95OgQZw79M9wXz8giUpi-0CmlL3LLSadbE98tgysRxylHbywPTBVUmM_xIrgcP6b6wFq-g7mxwFnkjSY"
+    bg: "/secundaria.jpg"
   }
 ];
 
 // Datos Simulados para Instagram
-const igPosts = [
-  { id: 1, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDY8zTgaXvxBi8uts6nUC4ZVfCEDZ0gQALy2vAM2KXtT90VcK3fckz9T8i-LNB8lccn5c702h6UmixM1f4Ksltc6LVdr3jpqzt6sHXeJDdRf1-l9K32hZpl1cidMuOq-0q4ZbLwwTaN6M6F7cMTPAWe0f3cCiuhk1vgOTCvI6aWgpYSnli8Nrer1Khj3HM6hu7leqkP7_DBohdGDvYTT45JkmzsewvTrryRhSBxREh9tes9FuCQthvRAmo0blS6-iyv9aCndwEPSfc", likes: "1.2k", comments: "45" },
-  { id: 2, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBwBV0G-BQvbf570qjtCjPUwgUwUKGIk4bDihQP0QVy8VJa1jfiJjzyT7Q6o3bT9QiPEiQfK7IogoWpagX8Ou4weBd4i-_SOQXf1E7c4X6MEWtIEkc3Oss-nSNcYjcs_KBXh7tybrcOF4mW-f4ZhpnaRgGF2KUA30qgh6sDgm86OVyTzYKVzcjJBZ8ZaZx2eWBOurt0KNyFaCsEMOWUYGnUi5YU_AshMptlBiMHFN0Bni251e6NI-2NOvi0rL_XGV5c_rGu3Sfz-IY", likes: "856", comments: "12" },
-  { id: 3, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuATHycRDkpQ2DaEMQjRKZvk8pZDwGmj3w7IuHGHi2yNrFznn8BigC8WW5zb4GtXF3KgiT59Niv0LHvQnIWZufbjA7H9B1BgwA_U7sKDfgqzOXJ1W4NzKRZdWfgn-nUGybRZ4HSZ1wUzOFvvqUnFdyQUBTJ5LTB543yvqOZYlXUhf4AkKn1Ls4_GPQds2KsMDowJYXaaROyFAneom7H6huf1ksKvcJsgPeDuzBpkyi8gANmHniW9WWNpEZ7oAqINxy3IgGjoO_44xQk", likes: "2.1k", comments: "89" },
-  { id: 4, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDlC4GrldPv4jwVeGoFzfBxBkOeHtTDxez_Oz1sMlQ5lfHdG7fyg_g4xrLt8hcvgjS0fQgwxXb_4xapzw2f3pAUYmxueypiD7ehH1Jpro18L2qygfAVIr3fHhbEeXf2qSr2h45V2j6f2HIdJTudrRbM20IYu_CuYwA26DwfaGB8dmT7b35OuLX2Cx0B8KhbQvtdce9hFcFMXkO5b2SFJxfXjt5XL5oLMiFg7VmABewS-wYeaTVLKvHVnuxyiKGNyjjOnsHZu2BDqeE", likes: "945", comments: "23" },
-  { id: 5, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD5B6CpcV2aNLUYJBLEVvCEPbdhsr2DmsuurbwqvLcwiIMdzJVTf7SWL0K6h43UNNu0xl54JMBSQCUPryqy_8g8F7LrhNW7yu0wSTiSuYZrjtlWzm2t0PjmPvFl43L2xwhaEyEVqIYewpmWKwi4hECjYIQHXpzKkCjb3wKDsCw_bJP0SzC6LuXrhyMWsbHeuoQ_Ix11SaP1v5RD1o-jOJjHauU3omWhwSkvK1g33AjouT86WRUKsdX00aWk14k0xB9wJrGKWk6OTps", likes: "1.5k", comments: "56" },
+const mockIgPosts = [
+  { id: 1, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDY8zTgaXvxBi8uts6nUC4ZVfCEDZ0gQALy2vAM2KXtT90VcK3fckz9T8i-LNB8lccn5c702h6UmixM1f4Ksltc6LVdr3jpqzt6sHXeJDdRf1-l9K32hZpl1cidMuOq-0q4ZbLwwTaN6M6F7cMTPAWe0f3cCiuhk1vgOTCvI6aWgpYSnli8Nrer1Khj3HM6hu7leqkP7_DBohdGDvYTT45JkmzsewvTrryRhSBxREh9tes9FuCQthvRAmo0blS6-iyv9aCndwEPSfc", likes: "1.2k", comments: "45", permalink: "#" },
+  { id: 2, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBwBV0G-BQvbf570qjtCjPUwgUwUKGIk4bDihQP0QVy8VJa1jfiJjzyT7Q6o3bT9QiPEiQfK7IogoWpagX8Ou4weBd4i-_SOQXf1E7c4X6MEWtIEkc3Oss-nSNcYjcs_KBXh7tybrcOF4mW-f4ZhpnaRgGF2KUA30qgh6sDgm86OVyTzYKVzcjJBZ8ZaZx2eWBOurt0KNyFaCsEMOWUYGnUi5YU_AshMptlBiMHFN0Bni251e6NI-2NOvi0rL_XGV5c_rGu3Sfz-IY", likes: "856", comments: "12", permalink: "#" },
+  { id: 3, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuATHycRDkpQ2DaEMQjRKZvk8pZDwGmj3w7IuHGHi2yNrFznn8BigC8WW5zb4GtXF3KgiT59Niv0LHvQnIWZufbjA7H9B1BgwA_U7sKDfgqzOXJ1W4NzKRZdWfgn-nUGybRZ4HSZ1wUzOFvvqUnFdyQUBTJ5LTB543yvqOZYlXUhf4AkKn1Ls4_GPQds2KsMDowJYXaaROyFAneom7H6huf1ksKvcJsgPeDuzBpkyi8gANmHniW9WWNpEZ7oAqINxy3IgGjoO_44xQk", likes: "2.1k", comments: "89", permalink: "#" },
+  { id: 4, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDlC4GrldPv4jwVeGoFzfBxBkOeHtTDxez_Oz1sMlQ5lfHdG7fyg_g4xrLt8hcvgjS0fQgwxXb_4xapzw2f3pAUYmxueypiD7ehH1Jpro18L2qygfAVIr3fHhbEeXf2qSr2h45V2j6f2HIdJTudrRbM20IYu_CuYwA26DwfaGB8dmT7b35OuLX2Cx0B8KhbQvtdce9hFcFMXkO5b2SFJxfXjt5XL5oLMiFg7VmABewS-wYeaTVLKvHVnuxyiKGNyjjOnsHZu2BDqeE", likes: "945", comments: "23", permalink: "#" },
+  { id: 5, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD5B6CpcV2aNLUYJBLEVvCEPbdhsr2DmsuurbwqvLcwiIMdzJVTf7SWL0K6h43UNNu0xl54JMBSQCUPryqy_8g8F7LrhNW7yu0wSTiSuYZrjtlWzm2t0PjmPvFl43L2xwhaEyEVqIYewpmWKwi4hECjYIQHXpzKkCjb3wKDsCw_bJP0SzC6LuXrhyMWsbHeuoQ_Ix11SaP1v5RD1o-jOJjHauU3omWhwSkvK1g33AjouT86WRUKsdX00aWk14k0xB9wJrGKWk6OTps", likes: "1.5k", comments: "56", permalink: "#" },
 ];
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [igPosts, setIgPosts] = useState(mockIgPosts);
 
   useEffect(() => {
+    fetch('/api/instagram')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const formatted = data.slice(0, 5).map((item: any) => ({
+            id: item.id,
+            img: item.media_type === 'VIDEO' ? (item.thumbnail_url || item.media_url) : item.media_url,
+            likes: "Ig",
+            comments: "Ver",
+            permalink: item.permalink
+          }));
+          setIgPosts(formatted);
+        }
+      })
+      .catch(err => console.error("Error loading IG posts:", err));
+
     // Auto-play del Hero Slider
     const slideInterval = setInterval(() => {
       setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
@@ -120,12 +138,12 @@ export default function Home() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
-                <button className="bg-primary text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-body text-xs sm:text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_15px_30px_-10px_rgba(204,0,0,0.3)] hover:shadow-[0_20px_40px_-10px_rgba(204,0,0,0.4)] text-center">
+                <Link href="/contacto" className="bg-primary text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-body text-xs sm:text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_15px_30px_-10px_rgba(204,0,0,0.3)] hover:shadow-[0_20px_40px_-10px_rgba(204,0,0,0.4)] text-center">
                   Solicitar Admisión
-                </button>
-                <button className="bg-surface text-on-background border border-black/5 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-body text-xs sm:text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:bg-black/5 text-center">
+                </Link>
+                <a href="#oferta" className="bg-surface text-on-background border border-black/5 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-body text-xs sm:text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:bg-black/5 text-center block">
                   Ver Programas
-                </button>
+                </a>
               </div>
             </div>
           ))}
@@ -161,7 +179,7 @@ export default function Home() {
       </div>
 
       {/* Bento Grid Academic Offer */}
-      <section className="py-20 sm:py-32 bg-blue-50/40 relative z-10 border-b border-black/5 overflow-hidden">
+      <section id="oferta" className="py-20 sm:py-32 bg-blue-50/40 relative z-10 border-b border-black/5 overflow-hidden">
         <div className="absolute top-1/2 -right-32 w-[40rem] h-[40rem] bg-yellow-300/10 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-10 -left-20 w-80 h-80 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -209,7 +227,7 @@ export default function Home() {
 
             {/* Deportes */}
             <div className="bento-card md:col-span-1 md:row-span-1 group animate-on-scroll h-80 md:h-auto bg-black overflow-hidden relative">
-              <div className="absolute inset-0 bg-cover bg-center opacity-50 group-hover:scale-105 group-hover:opacity-70 transition-all duration-700" style={{ backgroundImage: "url('/inicial.jpg')" }}></div>
+              <div className="absolute inset-0 bg-cover bg-center opacity-50 group-hover:scale-105 group-hover:opacity-70 transition-all duration-700" style={{ backgroundImage: "url('/2crossover.jpg')" }}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20"></div>
               <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-end">
                 <span className="text-primary font-body text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-3 bg-white/90 w-fit px-3 py-1 rounded-full">Desarrollo Físico</span>
@@ -258,7 +276,7 @@ export default function Home() {
                 SÍGUENOS EN <span className="text-primary">IG.</span>
               </h2>
             </div>
-            <a href="#" className="font-body text-sm sm:text-base font-bold uppercase tracking-widest text-on-background hover:text-primary transition-colors flex items-center gap-2">
+            <a href="https://www.instagram.com/centroeducativocrossover" target="_blank" rel="noopener noreferrer" className="font-body text-sm sm:text-base font-bold uppercase tracking-widest text-on-background hover:text-primary transition-colors flex items-center gap-2">
               @crossover.rd <span className="material-symbols-outlined">arrow_outward</span>
             </a>
           </div>
@@ -266,7 +284,9 @@ export default function Home() {
           <div className="grid grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 gap-4 sm:gap-6 animate-on-scroll">
             {igPosts.map((post, index) => (
               <a 
-                href="#" 
+                href={post.permalink || "#"} 
+                target="_blank"
+                rel="noopener noreferrer"
                 key={post.id} 
                 className={`relative rounded-[2rem] overflow-hidden group bg-surface border border-black/5 shadow-sm ${
                   index === 0 

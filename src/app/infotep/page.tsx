@@ -1,13 +1,16 @@
 "use client";
-import React, { useState } from "react";
+import Link from "next/link";import React, { useState } from "react";
 
 const cursosInfotep = [
-  { nombre: "Auxiliar de Contabilidad", icon: "calculate", desc: "Principios contables, manejo de libros, nómina y transacciones financieras diarias.", color: "bg-emerald-500", shadow: "shadow-emerald-500/50", text_color: "text-emerald-500", metodologia: "Ejercicios prácticos con comprobantes reales y llenado de formularios fiscales.", horarios: "Sábados o Domingos" },
-  { nombre: "Auxiliar de Farmacia", icon: "medical_services", desc: "Atención al cliente en farmacias, lectura de recetas, clasificación de medicamentos y manejo de inventario.", color: "bg-teal-500", shadow: "shadow-teal-500/50", text_color: "text-teal-500", metodologia: "Simulación de farmacia, práctica de lectura de récipes médicos y farmacología básica.", horarios: "Sábados en la tarde." },
-  { nombre: "Cajero Bancario y Comercial", icon: "point_of_sale", desc: "Operaciones de caja, cuadre diario, detección de billetes falsos y excelente servicio al cliente.", color: "bg-indigo-500", shadow: "shadow-indigo-500/50", text_color: "text-indigo-500", metodologia: "Práctica con máquinas contadoras, detectores de billetes y simulador de caja bancaria.", horarios: "Sábados intensivos." },
-  { nombre: "Programas de Oficina e Internet", icon: "computer", desc: "Dominio de Microsoft Word, Excel, PowerPoint y herramientas web para el entorno laboral moderno.", color: "bg-blue-500", shadow: "shadow-blue-500/50", text_color: "text-blue-500", metodologia: "Práctica 100% en laboratorio de informática. Un estudiante por computadora.", horarios: "Sábados o Domingos." },
-  { nombre: "Auxiliar de Secretariado Ejecutivo", icon: "desk", desc: "Redacción comercial, archivo, relaciones humanas y gestión eficiente de oficinas.", color: "bg-pink-500", shadow: "shadow-pink-500/50", text_color: "text-pink-500", metodologia: "Simulaciones de atención telefónica, organización de agenda y redacción de documentos corporativos.", horarios: "Sábados en la mañana." },
-  { nombre: "Ventas y Servicio al Cliente", icon: "support_agent", desc: "Técnicas de persuasión, fidelización de clientes, inteligencia emocional y manejo de quejas.", color: "bg-orange-500", shadow: "shadow-orange-500/50", text_color: "text-orange-500", metodologia: "Role-play (juegos de rol) y análisis de situaciones reales de ventas.", horarios: "Martes y Jueves nocturno." },
+  { nombre: "Básico de Contabilidad", icon: "calculate", desc: "Principios contables, manejo de libros, nómina y transacciones financieras diarias.", color: "bg-emerald-500", shadow: "shadow-emerald-500/50", text_color: "text-emerald-500", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Básico de Contabilidad" },
+  { nombre: "Básico de Farmacia", icon: "medical_services", desc: "Atención al cliente en farmacias, lectura de recetas y clasificación de medicamentos.", color: "bg-teal-500", shadow: "shadow-teal-500/50", text_color: "text-teal-500", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Básico de Farmacia" },
+  { nombre: "Básico de Ventas", icon: "support_agent", desc: "Técnicas de persuasión, fidelización de clientes y manejo de ventas directas.", color: "bg-orange-500", shadow: "shadow-orange-500/50", text_color: "text-orange-500", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Básico de Ventas" },
+  { nombre: "Cajero Bancario", icon: "point_of_sale", desc: "Operaciones de caja, cuadre diario, detección de billetes y servicio al cliente.", color: "bg-indigo-500", shadow: "shadow-indigo-500/50", text_color: "text-indigo-500", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Cajero Bancario" },
+  { nombre: "Contabilidad Fiscal", icon: "account_balance", desc: "Llenado de formularios fiscales, retenciones, ITBIS e impuestos sobre la renta.", color: "bg-green-600", shadow: "shadow-green-600/50", text_color: "text-green-600", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Contabilidad fiscal" },
+  { nombre: "Manejo de Inventario", icon: "inventory", desc: "Control de almacén, entradas y salidas, métodos de valuación e inventario físico.", color: "bg-amber-500", shadow: "shadow-amber-500/50", text_color: "text-amber-500", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Manejo de Inventario" },
+  { nombre: "Programas de Oficina e Internet", icon: "computer", desc: "Dominio de herramientas ofimáticas y navegación segura por internet.", color: "bg-blue-500", shadow: "shadow-blue-500/50", text_color: "text-blue-500", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Manejo de programas de oficina e internet" },
+  { nombre: "Ventas Externas", icon: "storefront", desc: "Estrategias de ventas en la calle, captación de clientes y cierre de negocios.", color: "bg-red-500", shadow: "shadow-red-500/50", text_color: "text-red-500", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Ventas externas" },
+  { nombre: "Visita Médica", icon: "medication", desc: "Técnicas de promoción médica, farmacología básica y abordaje a doctores.", color: "bg-purple-500", shadow: "shadow-purple-500/50", text_color: "text-purple-500", metodologia: "Formación gratuita avalada por INFOTEP. Presencial.", horarios: ["Lunes a Viernes", "• 2:00pm a 6:00pm", "• 6:00pm a 10:00pm"], linkParams: "?area=infotep&curso=Visita médica" },
 ];
 
 export default function InfotepPage() {
@@ -110,14 +113,20 @@ export default function InfotepPage() {
                   <span className={`material-symbols-outlined ${selectedItem.text_color}`}>schedule</span>
                   Horarios Disponibles
                 </h4>
-                <p className="text-on-background-muted">{selectedItem.horarios}</p>
+                <div className="text-on-background-muted text-sm space-y-1">
+                  {Array.isArray(selectedItem.horarios) ? (
+                    selectedItem.horarios.map((h: string, idx: number) => <p key={idx}>{h}</p>)
+                  ) : (
+                    <p>{selectedItem.horarios}</p>
+                  )}
+                </div>
               </div>
             </div>
             
             <div className="mt-10 flex gap-4">
-              <button className={`flex-1 py-4 rounded-full text-white font-bold uppercase tracking-widest text-sm shadow-lg transition-transform hover:scale-105 ${selectedItem.color} ${selectedItem.shadow}`}>
+              <Link href={`/inscripcion${selectedItem.linkParams || ''}`} className={`flex-1 py-4 text-center rounded-full text-white font-bold uppercase tracking-widest text-sm shadow-lg transition-transform hover:scale-105 block ${selectedItem.color} ${selectedItem.shadow}`}>
                 Inscribirme
-              </button>
+              </Link>
             </div>
           </div>
         </div>

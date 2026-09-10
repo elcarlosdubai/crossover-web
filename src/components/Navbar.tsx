@@ -44,9 +44,9 @@ export default function Navbar() {
 
         {/* Botones */}
         <div className="flex items-center gap-4">
-          <button className="hidden sm:block bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest active:scale-95 transition-all duration-300 hover:bg-on-background hover:shadow-[0_10px_20px_rgba(204,0,0,0.2)]">
-            Admisiones
-          </button>
+          <Link href="/inscripcion" className="hidden sm:block bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest active:scale-95 transition-all duration-300 hover:bg-on-background hover:shadow-[0_10px_20px_rgba(204,0,0,0.2)]">
+            Inscríbete
+          </Link>
           
           {/* Mobile Menu Button */}
           <button 
@@ -108,9 +108,13 @@ export default function Navbar() {
             Contáctanos
           </Link>
 
-          <button className="w-full bg-primary text-white px-8 py-4 rounded-full font-body font-bold uppercase tracking-widest active:scale-95 transition-transform shadow-xl">
-            Admisiones
-          </button>
+          <Link 
+            href="/inscripcion" 
+            className="w-full text-center bg-primary text-white px-8 py-4 rounded-full font-body font-bold uppercase tracking-widest active:scale-95 transition-transform shadow-xl block"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Inscríbete
+          </Link>
         </div>
       )}
     </nav>

@@ -132,13 +132,14 @@ const primarioInfo = {
 
 export default function ColegioPage() {
   const [activeTab, setActiveTab] = useState("inicial");
+  const [showModal, setShowModal] = useState<string | null>(null);
 
   return (
     <main className="bg-background min-h-screen pt-24 selection:bg-primary selection:text-white pb-24">
       {/* Hero Section */}
-      <section className="relative w-full h-[40vh] min-h-[350px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/secundaria.jpg')" }}></div>
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
+      <section className="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/3crossover.jpg')" }}></div>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <span className="text-primary font-body text-sm font-bold uppercase tracking-[0.3em] mb-4 block">Oferta Académica</span>
           <h1 className="text-white font-display text-5xl md:text-6xl font-black tracking-tight uppercase mb-4">
@@ -157,7 +158,8 @@ export default function ColegioPage() {
             {[
               { id: "inicial", label: "Nivel Inicial", icon: "toys" },
               { id: "primaria", label: "Nivel Primario", icon: "school" },
-              { id: "secundaria", label: "Nivel Secundario", icon: "laptop_mac" }
+              { id: "secundaria", label: "Nivel Secundario", icon: "laptop_mac" },
+              { id: "semi-internado", label: "Semi-Internado", icon: "family_home" }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -188,7 +190,7 @@ export default function ColegioPage() {
               <p className="font-body text-on-background-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed mb-6">
                 {inicialInfo.description}
               </p>
-              <button className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mb-16">
+              <button onClick={() => setShowModal('inicial')} className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mb-16">
                 <span className="material-symbols-outlined text-xl">list_alt</span>
                 Ver Requisitos
               </button>
@@ -248,6 +250,11 @@ export default function ColegioPage() {
                 ))}
               </div>
             </div>
+            
+            <button onClick={() => setShowModal('inicial')} className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mt-16 mb-8">
+              <span className="material-symbols-outlined text-xl">list_alt</span>
+              Ver Requisitos
+            </button>
           </div>
         )}
 
@@ -260,10 +267,21 @@ export default function ColegioPage() {
               <p className="font-body text-on-background-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed mb-6">
                 {primarioInfo.description}
               </p>
-              <button className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto">
+              <button onClick={() => setShowModal('primaria')} className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mb-16">
                 <span className="material-symbols-outlined text-xl">list_alt</span>
                 Ver Requisitos
               </button>
+
+              <div className="max-w-4xl mx-auto rounded-[2rem] overflow-hidden shadow-2xl border border-black/5 aspect-video relative">
+                <iframe 
+                  className="absolute inset-0 w-full h-full"
+                  src="https://www.youtube.com/embed/JJU1kx_s_2g?autoplay=1&mute=1" 
+                  title="Tour Nivel Primario" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
@@ -309,6 +327,11 @@ export default function ColegioPage() {
                 ))}
               </div>
             </div>
+            
+            <button onClick={() => setShowModal('primaria')} className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mt-16 mb-8">
+              <span className="material-symbols-outlined text-xl">list_alt</span>
+              Ver Requisitos
+            </button>
           </div>
         )}
 
@@ -321,10 +344,21 @@ export default function ColegioPage() {
               <p className="font-body text-on-background-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed mb-6">
                 Con una duración de seis años, dirigido a jóvenes de 12 a 17 años, nuestro nivel secundario prepara a los estudiantes para la educación superior y el mundo laboral con un programa de excelencia integral.
               </p>
-              <button className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mb-12">
+              <button onClick={() => setShowModal('secundaria')} className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mb-16">
                 <span className="material-symbols-outlined text-xl">list_alt</span>
                 Ver Requisitos
               </button>
+
+              <div className="max-w-4xl mx-auto rounded-[2rem] overflow-hidden shadow-2xl border border-black/5 aspect-video relative mb-16">
+                <iframe 
+                  className="absolute inset-0 w-full h-full"
+                  src="https://www.youtube.com/embed/JJU1kx_s_2g?autoplay=1&mute=1" 
+                  title="Tour Nivel Secundario" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 text-left">
                 <div className="glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl">
@@ -419,9 +453,262 @@ export default function ColegioPage() {
                 </p>
               </div>
             </div>
+            
+            <button onClick={() => setShowModal('secundaria')} className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mt-16 mb-8">
+              <span className="material-symbols-outlined text-xl">list_alt</span>
+              Ver Requisitos
+            </button>
           </div>
         )}
+
+        {/* SEMI-INTERNADO TAB */}
+        {activeTab === "semi-internado" && (
+          <div className="animate-fade-in-up mb-24">
+            <div className="text-center mb-16">
+              <span className="material-symbols-outlined text-6xl text-[#ffcc00] mb-4 block animate-bounce">family_home</span>
+              <h2 className="font-display text-4xl md:text-5xl font-black text-on-background mb-4 uppercase">Semi-Internado</h2>
+              <p className="font-body text-on-background-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed mb-8">
+                Pensando en la tranquilidad de los padres que trabajan, ofrecemos un programa extendido donde tus hijos aprenden, almuerzan, hacen sus tareas y se divierten en un ambiente totalmente seguro.
+              </p>
+              
+              <div className="flex flex-wrap justify-center gap-4 mb-8">
+                <span className="bg-[#ffcc00] text-black px-5 py-2.5 rounded-full font-bold text-sm shadow-md border border-black/5 flex items-center gap-2"><span className="material-symbols-outlined text-base">schedule</span> Lunes a Viernes de 7:30 a.m. a 6:00 p.m.</span>
+                <span className="bg-[#004e9a] text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-md flex items-center gap-2"><span className="material-symbols-outlined text-base">child_care</span> De Párvulo a 6to de Primaria</span>
+              </div>
+
+              <button onClick={() => setShowModal('semi-internado')} className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mb-16">
+                <span className="material-symbols-outlined text-xl">list_alt</span>
+                Ver Requisitos
+              </button>
+
+              {/* Video */}
+              <div className="max-w-4xl mx-auto rounded-[2rem] overflow-hidden shadow-2xl border border-black/5 aspect-video relative mb-16">
+                <iframe 
+                  className="absolute inset-0 w-full h-full"
+                  src="https://www.youtube.com/embed/8PCUxEWfY0U?autoplay=1&mute=1" 
+                  title="Tour Semi-Internado" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+
+            {/* Beneficios Grid */}
+            <h3 className="font-display text-3xl font-bold text-center mb-10">¿Qué incluye nuestro programa?</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+              {/* 1. Sala de Tareas */}
+              <div className="glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl text-center">
+                <div className="absolute top-0 left-0 w-full h-2 bg-blue-500"></div>
+                <span className="material-symbols-outlined text-4xl text-blue-500 mb-4 block">auto_stories</span>
+                <h4 className="font-bold text-xl mb-3 text-on-background">Sala de Tareas Guiada</h4>
+                <p className="text-on-background-muted text-sm">Apoyo en sus tareas y reforzamiento en matemáticas y lecto-escritura. ¡Llegan a casa a descansar!</p>
+              </div>
+
+              {/* 2. Alimentación */}
+              <div className="glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl text-center">
+                <div className="absolute top-0 left-0 w-full h-2 bg-green-500"></div>
+                <span className="material-symbols-outlined text-4xl text-green-500 mb-4 block">restaurant</span>
+                <h4 className="font-bold text-xl mb-3 text-on-background">Alimentación Saludable</h4>
+                <p className="text-on-background-muted text-sm">Almuerzo diario con un menú balanceado y merienda vespertina para mantener su energía al máximo.</p>
+              </div>
+
+              {/* 3. Disciplinas Deportivas */}
+              <div className="glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl text-center">
+                <div className="absolute top-0 left-0 w-full h-2 bg-orange-500"></div>
+                <span className="material-symbols-outlined text-4xl text-orange-500 mb-4 block">sports_martial_arts</span>
+                <h4 className="font-bold text-xl mb-3 text-on-background">Disciplinas Deportivas</h4>
+                <p className="text-on-background-muted text-sm">Prácticas de Karate, Básquetbol y Voleibol para fomentar su salud, disciplina y trabajo en equipo.</p>
+              </div>
+
+              {/* 4. Artes y Creatividad */}
+              <div className="glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl text-center">
+                <div className="absolute top-0 left-0 w-full h-2 bg-purple-500"></div>
+                <span className="material-symbols-outlined text-4xl text-purple-500 mb-4 block">palette</span>
+                <h4 className="font-bold text-xl mb-3 text-on-background">Artes y Creatividad</h4>
+                <p className="text-on-background-muted text-sm">Desarrollan su lado artístico con talleres de pintura, clases de ballet y clases de flauta.</p>
+              </div>
+
+              {/* 5. Clases Formales */}
+              <div className="glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl text-center">
+                <div className="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+                <span className="material-symbols-outlined text-4xl text-red-500 mb-4 block">school</span>
+                <h4 className="font-bold text-xl mb-3 text-on-background">Programa Académico</h4>
+                <p className="text-on-background-muted text-sm">Todo el programa de clases del horario matutino está totalmente cubierto con nuestros docentes.</p>
+              </div>
+
+              {/* 6. Proyectos Especiales */}
+              <div className="glass-panel-light p-8 rounded-[2rem] border border-black/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-white shadow-md hover:shadow-xl text-center">
+                <div className="absolute top-0 left-0 w-full h-2 bg-yellow-500"></div>
+                <span className="material-symbols-outlined text-4xl text-yellow-500 mb-4 block">extension</span>
+                <h4 className="font-bold text-xl mb-3 text-on-background">Proyectos Especiales</h4>
+                <p className="text-on-background-muted text-sm">Actividades por temporada diseñadas para la diversión y el desarrollo cognitivo del niño.</p>
+              </div>
+            </div>
+
+            <button onClick={() => setShowModal('semi-internado')} className="bg-primary text-white px-8 py-3 rounded-full font-body text-sm font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 shadow-[0_10px_20px_-10px_rgba(204,0,0,0.4)] hover:shadow-[0_15px_30px_-10px_rgba(204,0,0,0.5)] flex items-center gap-2 mx-auto mb-16">
+              <span className="material-symbols-outlined text-xl">list_alt</span>
+              Ver Requisitos
+            </button>
+          </div>
+        )}
+        {/* ADMISSIONS MODAL */}
       </section>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white w-full max-w-4xl rounded-[2rem] shadow-2xl relative animate-fade-in-up my-8">
+            <button 
+              onClick={() => setShowModal(null)}
+              className="absolute top-4 right-4 bg-black/5 hover:bg-black/10 text-on-background p-2 rounded-full transition-colors z-10"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            
+            <div className="p-8 md:p-10 max-h-[85vh] overflow-y-auto">
+              <div className="text-center mb-8">
+                <span className="material-symbols-outlined text-5xl text-primary mb-2 block">assignment</span>
+                <h2 className="font-display text-3xl md:text-4xl font-black text-on-background uppercase">
+                  Requisitos e Inversión
+                </h2>
+                <p className="text-primary font-bold text-lg">
+                  {showModal === 'inicial' && "Nivel Inicial"}
+                  {showModal === 'primaria' && "Nivel Primario"}
+                  {showModal === 'secundaria' && "Nivel Secundario"}
+                  {showModal === 'semi-internado' && "Semi-Internado"}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                {/* Lo Específico */}
+                <div className="bg-surface p-6 rounded-2xl border border-black/5">
+                  <h3 className="font-bold text-lg text-on-background mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">description</span> 
+                    Documentación
+                  </h3>
+                  
+                  {(showModal === 'inicial' || showModal === 'primaria' || showModal === 'semi-internado') ? (
+                    <ul className="list-disc pl-5 space-y-2 text-sm text-on-background-muted">
+                      <li>Acta de nacimiento original y certificada</li>
+                      <li>2 fotos 2x2</li>
+                      <li>Copia de seguro</li>
+                      {showModal === 'inicial' && <li>Copia de récord de vacunas</li>}
+                      <li>Nota del curso anterior (si lo requiere)</li>
+                      <li>Carta de saldo (si lo requiere)</li>
+                      <li>Copia de cédula de los padres o tutores</li>
+                      <li>Historial del SIGERD</li>
+                    </ul>
+                  ) : (
+                    <ul className="list-disc pl-5 space-y-2 text-sm text-on-background-muted">
+                      <li>Acta de nacimiento original y certificada</li>
+                      <li>2 fotos 2x2</li>
+                      <li>Copia de seguro o certificado médico</li>
+                      <li>Récord de notas de los cursos anteriores</li>
+                      <li>Certificación de conclusión nivel primario (6to)</li>
+                      <li>Carta de saldo (si lo requiere)</li>
+                      <li>Copia de cédula de los padres o tutores</li>
+                      <li>Hoja de inscripción o convalidación (Extranjeros)</li>
+                      <li>Historial del SIGERD</li>
+                    </ul>
+                  )}
+                </div>
+
+                <div className="bg-surface p-6 rounded-2xl border border-black/5">
+                  <h3 className="font-bold text-lg text-on-background mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">payments</span> 
+                    Inversión (2026-2027)
+                  </h3>
+                  
+                  {(showModal === 'inicial' || showModal === 'primaria') && (
+                    <div>
+                      <p className="text-sm text-on-background-muted mb-2">Inscripción: RD$ 4,000<br/>Septiembre: RD$ 7,900<br/>Material: RD$ 3,000</p>
+                      <p className="font-bold text-primary text-xl mt-4">Mensualidad: RD$ 7,900</p>
+                      <p className="text-sm font-bold text-on-background mt-2">Total a pagar al inscribir: RD$ 14,900</p>
+                    </div>
+                  )}
+
+                  {showModal === 'secundaria' && (
+                    <div>
+                      <p className="text-sm text-on-background-muted mb-2">Inscripción: RD$ 4,000<br/>Material: RD$ 1,500</p>
+                      <div className="mt-4 mb-4 border-l-2 border-primary pl-3">
+                        <p className="font-bold text-primary">Matutino</p>
+                        <p className="text-sm">Mensualidad: RD$ 7,900</p>
+                        <p className="text-xs font-bold text-on-background">Total al inscribir: RD$ 13,400</p>
+                      </div>
+                      <div className="border-l-2 border-[#ffcc00] pl-3">
+                        <p className="font-bold text-[#ffcc00] drop-shadow-sm">Vespertino</p>
+                        <p className="text-sm">Mensualidad: RD$ 5,000</p>
+                        <p className="text-xs font-bold text-on-background">Total al inscribir: RD$ 10,500</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {showModal === 'semi-internado' && (
+                    <div>
+                      <p className="text-sm text-on-background-muted mb-2">Inscripción: RD$ 4,000<br/>Septiembre: RD$ 14,500<br/>Material: RD$ 5,000</p>
+                      <p className="font-bold text-primary text-xl mt-4">Mensualidad: RD$ 14,500</p>
+                      <p className="text-sm font-bold text-on-background mt-2">Total a pagar al inscribir: RD$ 23,500</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Lo General (Beneficios y Ofertas) */}
+              <div className="bg-[#002244] text-white p-6 rounded-2xl relative overflow-hidden mt-6">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[40px]"></div>
+                
+                <h3 className="font-bold text-xl mb-4 text-[#ffcc00] flex items-center gap-2">
+                  <span className="material-symbols-outlined">campaign</span> Información General y Ofertas
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                  <div>
+                    <h4 className="font-bold text-sm text-[#ffcc00] mb-2">Descuentos y Ofertas</h4>
+                    <ul className="space-y-1 text-xs text-white/90 list-disc pl-4 mb-4">
+                      <li><strong>30 Jun al 20 Jul:</strong> Cero pago por inscripción (solo Sept. + Material).</li>
+                      <li><strong>10% OFF</strong> al pagar el año escolar completo por adelantado.</li>
+                      <li><strong>10% OFF</strong> en mensualidad para familias con 3 o más hijos.</li>
+                      <li className="text-red-300">NO se realizan descuentos a subsidios institucionales.</li>
+                    </ul>
+
+                    <h4 className="font-bold text-sm text-[#ffcc00] mb-2">Normas de Admisión</h4>
+                    <ul className="space-y-1 text-xs text-white/90 list-disc pl-4">
+                      <li>Extranjeros deben realizar proceso de convalidación.</li>
+                      <li>La entrega de documentos debe realizarse el mismo día de la inscripción.</li>
+                      <li className="text-red-300">El pago de inscripción o reinscripción no es reembolsable.</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <div className="bg-white/10 p-3 rounded-lg border border-white/20 mb-4">
+                      <p className="text-sm mb-1"><strong className="text-[#ffcc00]">Límite de Admisión:</strong> Jueves 20 Agosto 2026</p>
+                      <p className="text-sm"><strong className="text-[#ffcc00]">Inicio de Clases:</strong> Jueves 3 Septiembre 2026</p>
+                    </div>
+
+                    <h4 className="font-bold text-sm text-[#ffcc00] mb-2">Servicios y Extracurriculares</h4>
+                    <div className="space-y-2 text-xs text-white/90">
+                      <p className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">directions_bus</span> <strong>Transporte:</strong> RD$ 4,900 / mes (Ida y vuelta).</p>
+                      <div className="flex gap-2 items-start mt-2">
+                        <span className="material-symbols-outlined text-sm mt-0.5">sports_basketball</span> 
+                        <div>
+                          <strong>Disciplinas (Vespertinas y Sabatinas):</strong>
+                          <p className="mt-1 text-white/70">Voleibol • Baloncesto • Karate • Ballet • Fútbol</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-center mt-8">
+                <button onClick={() => setShowModal(null)} className="bg-surface text-on-background px-8 py-3 rounded-full font-bold text-sm hover:bg-black/5 transition-colors border border-black/10">
+                  Entendido, volver a la página
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -14,9 +14,9 @@ export default function NosotrosPage() {
     <main className="bg-background min-h-screen pt-24 selection:bg-primary selection:text-white">
       
       {/* Hero Section */}
-      <section className="relative w-full h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/secundaria.jpg')" }}></div>
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-[2px]"></div>
+      <section className="relative w-full h-[50vh] min-h-[400px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/1crossover.jpg')" }}></div>
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
         <div className="relative z-10 text-center px-6">
           <h1 className="text-white font-display text-5xl md:text-7xl font-black tracking-tight uppercase">
             Sobre <span className="text-primary">Nosotros</span>

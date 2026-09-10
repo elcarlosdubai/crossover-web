@@ -1,50 +1,69 @@
 "use client";
-import React, { useState } from "react";
+import Link from "next/link";import React, { useState } from "react";
 
 const deportes = [
   { 
     nombre: "Basketball", 
     icon: "sports_basketball", 
+    precio: "RD$ 1,000 / mes",
     desc: "¡Aprende a driblar, lanzar y trabajar en equipo! Nuestro programa desarrolla la coordinación y la agilidad de los más pequeños en un ambiente lleno de energía.", 
     color: "bg-orange-500", 
     shadow: "shadow-orange-500/50",
     text_color: "text-orange-500",
     beneficios: "Mejora la resistencia cardiovascular, desarrolla la concentración y fomenta el trabajo en equipo.",
-    horarios: "Lunes y Miércoles: 4:00 PM - 5:30 PM (Niños 6-9 años) / 5:30 PM - 7:00 PM (10-14 años)",
-    etiqueta: "¡Más Popular!"
+    horarios: [
+      "• Jueves: 2:00pm - 4:00pm (6 a 12 años)",
+      "• Jueves: 4:00pm - 6:00pm (13 a 18 años)", "• Sábados: 2:00pm - 4:00pm (6 a 12 años)", "• Sábados: 4:00pm - 6:00pm (13 a 18 años)"
+    ],
+    etiqueta: "¡Más Popular!",
+    linkParams: "?area=deportes&curso=Basketball"
   },
   { 
     nombre: "Volleyball", 
     icon: "sports_volleyball", 
+    precio: "RD$ 1,000 / mes",
     desc: "¡Saltos, remates y mucha diversión! Clases diseñadas para enseñar los fundamentos del voleibol mientras los niños se divierten y hacen amigos.", 
     color: "bg-blue-500", 
     shadow: "shadow-blue-500/50",
     text_color: "text-blue-500",
     beneficios: "Aumenta la agilidad, mejora los reflejos y enseña disciplina deportiva.",
-    horarios: "Martes y Jueves: 4:00 PM - 5:30 PM (Niños 6-9 años) / 5:30 PM - 7:00 PM (10-14 años)",
-    etiqueta: "¡Súper Dinámico!"
+    horarios: [
+      "• Martes: 4:00pm - 6:00pm",
+      "• Sábados: 8:00am - 10:00am"
+    ],
+    etiqueta: "¡Súper Dinámico!",
+    linkParams: "?area=deportes&curso=Volleyball"
   },
   { 
     nombre: "Soccer (Fútbol)", 
     icon: "sports_soccer", 
+    precio: "RD$ 1,000 / mes",
     desc: "¡Pasión por el balón! Una academia donde cada niño desarrolla sus habilidades técnicas, control del balón y tácticas de juego en nuestra cancha.", 
     color: "bg-emerald-500", 
     shadow: "shadow-emerald-500/50",
     text_color: "text-emerald-500",
     beneficios: "Fortalece las piernas, mejora la capacidad aeróbica y fomenta la estrategia de grupo.",
-    horarios: "Viernes: 4:00 PM - 6:00 PM / Sábados: 9:00 AM - 11:00 AM",
-    etiqueta: "¡Pura Adrenalina!"
+    horarios: [
+      "• Miércoles: 2:00pm - 5:00pm (5 a 9 años)",
+      "• Viernes: 2:00pm - 5:00pm (10 a 15 años)"
+    ],
+    etiqueta: "¡Pura Adrenalina!",
+    linkParams: "?area=deportes&curso=Soccer (Fútbol)"
   },
   { 
     nombre: "Karate", 
     icon: "sports_martial_arts", 
+    precio: "RD$ 1,000 / mes",
     desc: "¡Disciplina, respeto y autocontrol! Nuestras clases enseñan defensa personal al mismo tiempo que forman el carácter y la confianza de los niños.", 
     color: "bg-red-500", 
     shadow: "shadow-red-500/50",
     text_color: "text-red-500",
     beneficios: "Mejora la flexibilidad, fomenta el respeto hacia los demás y aumenta la confianza en sí mismos.",
-    horarios: "Lunes y Miércoles: 5:00 PM - 6:30 PM",
-    etiqueta: "¡Disciplina Total!"
+    horarios: [
+      "• Martes: 2:00pm - 4:00pm", "• Sábados: 9:00am - 12:00pm", "• Sábados: 4:00pm - 6:00pm"
+    ],
+    etiqueta: "¡Disciplina Total!",
+    linkParams: "?area=deportes&curso=Karate"
   },
 ];
 
@@ -175,14 +194,20 @@ export default function DeportesPage() {
                   <span className={`material-symbols-outlined ${selectedItem.text_color}`}>schedule</span>
                   Horarios de Entrenamiento
                 </h4>
-                <p className="text-on-background-muted ml-8 font-medium">{selectedItem.horarios}</p>
+                <div className="text-on-background-muted ml-8 font-medium space-y-1">
+                  {Array.isArray(selectedItem.horarios) ? (
+                    selectedItem.horarios.map((h: string, idx: number) => <p key={idx}>{h}</p>)
+                  ) : (
+                    <p>{selectedItem.horarios}</p>
+                  )}
+                </div>
               </div>
             </div>
             
             <div className="mt-10">
-              <button className={`w-full py-5 rounded-full text-white font-black uppercase tracking-widest text-sm shadow-xl transition-transform hover:scale-105 hover:-translate-y-1 ${selectedItem.color} ${selectedItem.shadow}`}>
+              <Link href={`/inscripcion${selectedItem.linkParams || ''}`} className={`block w-full py-5 text-center rounded-full text-white font-black uppercase tracking-widest text-sm shadow-xl transition-transform hover:scale-105 hover:-translate-y-1 ${selectedItem.color} ${selectedItem.shadow}`}>
                 ¡Quiero Inscribirme!
-              </button>
+              </Link>
             </div>
           </div>
         </div>
