@@ -1,4 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
+import { checkAuth } from '@/utils/supabase/server';
+import { NextResponse } from 'next/server';
 
 cloudinary.config({
   cloud_name: 'fjpovhwl',
@@ -7,13 +9,19 @@ cloudinary.config({
 });
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { paramsToSign } = body;
+  try {
+    await checkAuth(); // Proteger la ruta
 
-  const signature = cloudinary.utils.api_sign_request(
-    paramsToSign,
-    cloudinary.config().api_secret as string
-  );
+    const body = await request.json();
+    const { paramsToSign } = body;
 
-  return Response.json({ signature });
+    const signature = cloudinary.utils.api_sign_request(
+      paramsToSign,
+      cloudinary.config().api_secret as string
+    );
+
+    return NextResponse.json({ signature });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 401 });
+  }
 }

@@ -1,39 +1,55 @@
 "use server";
 import { createClient } from '@supabase/supabase-js';
+import { checkAuth } from '@/utils/supabase/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function createSlide(data: any) {
-  const { error } = await supabase.from('noticias').insert([{
-    titulo: data.title,
-    slug: data.subtitle,
-    foto_portada: data.bg,
-    contenido_html: data.description,
-    galeria_urls: [data.tag, data.btnText, data.btnLink, data.btn2Text, data.btn2Link],
-    etiquetas: ['SYSTEM_SLIDE']
-  }]);
-  if (error) return { success: false, error: error.message };
-  return { success: true };
+  try {
+    await checkAuth(); // Proteger la ruta
+    const { error } = await supabase.from('noticias').insert([{
+      titulo: data.title,
+      slug: data.subtitle,
+      foto_portada: data.bg,
+      contenido_html: data.description,
+      galeria_urls: [data.tag, data.btnText, data.btnLink, data.btn2Text, data.btn2Link],
+      etiquetas: ['SYSTEM_SLIDE']
+    }]);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
 }
 
 export async function updateSlide(id: number, data: any) {
-  const { error } = await supabase.from('noticias').update({
-    titulo: data.title,
-    slug: data.subtitle,
-    foto_portada: data.bg,
-    contenido_html: data.description,
-    galeria_urls: [data.tag, data.btnText, data.btnLink, data.btn2Text, data.btn2Link]
-  }).eq('id', id);
-  if (error) return { success: false, error: error.message };
-  return { success: true };
+  try {
+    await checkAuth(); // Proteger la ruta
+    const { error } = await supabase.from('noticias').update({
+      titulo: data.title,
+      slug: data.subtitle,
+      foto_portada: data.bg,
+      contenido_html: data.description,
+      galeria_urls: [data.tag, data.btnText, data.btnLink, data.btn2Text, data.btn2Link]
+    }).eq('id', id);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
 }
 
 export async function deleteSlide(id: number) {
-  const { error } = await supabase.from('noticias').delete().eq('id', id);
-  if (error) return { success: false, error: error.message };
-  return { success: true };
+  try {
+    await checkAuth(); // Proteger la ruta
+    const { error } = await supabase.from('noticias').delete().eq('id', id);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
 }
 
 export async function getPublicSlides() {
@@ -42,6 +58,7 @@ export async function getPublicSlides() {
     const data = allData.filter((n: any) => n.etiquetas && n.etiquetas.includes('SYSTEM_SLIDE'));
     if (data && data.length > 0) {
       return data.map((row: any) => ({
+        id: row.id,
         tag: row.galeria_urls?.[0] || "",
         title: row.titulo || "",
         subtitle: row.slug || "",
