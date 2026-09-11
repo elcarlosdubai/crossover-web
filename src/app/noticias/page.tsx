@@ -8,31 +8,35 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supab
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const revalidate = 60; 
+export const dynamic = 'force-dynamic';
 
-export default async function NoticiasPublicas() {
-  const { data: noticias, error } = await supabase
+export default async function NoticiasPublicas({ searchParams }: { searchParams: { page?: string } }) {
+  const currentPage = parseInt(searchParams.page || '1');
+  const itemsPerPage = 5;
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage - 1;
+
+  const { data: noticias, count, error } = await supabase
     .from('noticias')
-    .select('*')
-    .not('etiquetas', 'cs', '{"SYSTEM_SLIDE"}').order('created_at', { ascending: false });
+    .select('*', { count: 'exact' })
+    .not('etiquetas', 'cs', '{"SYSTEM_SLIDE"}')
+    .order('created_at', { ascending: false })
+    .range(start, end);
 
   if (error) {
     console.error("Error cargando noticias:", error);
   }
 
   const hasNoticias = noticias && noticias.length > 0;
-  const noticiaPrincipal = hasNoticias ? noticias[0] : null;
-  const otrasNoticias = hasNoticias ? noticias.slice(1, 5) : []; // Próximas 4 noticias
-  const restoNoticias = hasNoticias ? noticias.slice(5) : []; // El resto para el grid inferior
+  const totalPages = count ? Math.ceil(count / itemsPerPage) : 1;
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen">
       <Navbar />
       
-      <main className="pt-28 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="pt-28 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Título de la Sección */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between border-b border-gray-200 pb-4">
           <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">
             Últimas <span className="text-primary">Noticias</span>
           </h1>
@@ -45,117 +49,61 @@ export default async function NoticiasPublicas() {
             <p className="text-gray-500">Pronto publicaremos nuestros próximos eventos.</p>
           </div>
         ) : (
-          <>
-            {/* Layout Estilo Revista (Revista Magazine) */}
-            <div className="flex flex-col lg:flex-row gap-8 mb-16">
-              
-              {/* Noticia Principal (Gigante a la izquierda) */}
-              <Link href={`/noticias/${noticiaPrincipal.slug}`} className={`${otrasNoticias.length > 0 ? "lg:w-2/3" : "w-full"} relative group rounded-[2rem] overflow-hidden shadow-lg h-[400px] lg:h-[600px] block`}>
-                {/* Imagen de Fondo */}
-                <div className="absolute inset-0 bg-gray-900">
-                  {noticiaPrincipal.foto_portada && (
+          <div className="flex flex-col gap-10">
+            {noticias.map((noticia) => (
+              <Link href={`/noticias/${noticia.slug}`} key={noticia.id} className="w-full relative group rounded-[2rem] overflow-hidden shadow-xl h-[300px] md:h-[400px] block transition-transform duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gray-100">
+                  {noticia.foto_portada ? (
                     <img 
-                      src={noticiaPrincipal.foto_portada} 
-                      alt={noticiaPrincipal.titulo} 
-                      className="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-700"
+                      src={noticia.foto_portada} 
+                      alt={noticia.titulo} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-110 contrast-110 saturate-[1.15]"
                     />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-200">
+                      <span className="material-symbols-outlined text-6xl opacity-30">image</span>
+                    </div>
                   )}
-                  {/* Gradiente Oscuro para que el texto se lea */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-[60%] bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none"></div>
                 </div>
 
-                {/* Contenido (Overlay) */}
-                <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full">
-                  {noticiaPrincipal.etiquetas && noticiaPrincipal.etiquetas.length > 0 && (
-                    <span className="inline-block bg-primary text-white text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider mb-4 shadow-md">
-                      {noticiaPrincipal.etiquetas[0]}
-                    </span>
-                  )}
-                  <h2 className="text-3xl md:text-5xl font-display font-black text-white leading-tight mb-4 group-hover:text-gray-200 transition-colors">
-                    {noticiaPrincipal.titulo}
-                  </h2>
-                  <div className="flex items-center gap-2 text-sm font-bold text-gray-300 uppercase tracking-wider">
-                    <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-                    {new Date(noticiaPrincipal.created_at).toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' })}
+                <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full flex flex-col justify-end h-full">
+                  <div>
+                    {noticia.etiquetas && noticia.etiquetas.length > 0 && (
+                      <span className="inline-block bg-black/30 backdrop-blur-md border border-white/20 text-white/90 text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-[0.15em] mb-4 shadow-sm">
+                        {noticia.etiquetas[0]}
+                      </span>
+                    )}
+                    <h2 className="text-xl md:text-3xl font-display font-bold text-white leading-tight mb-3 group-hover:text-gray-200 transition-colors drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] max-w-4xl">
+                      {noticia.titulo}
+                    </h2>
+                    <div className="flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-300 uppercase tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                      <span className="material-symbols-outlined text-[16px] md:text-[18px]">calendar_today</span>
+                      {new Date(noticia.created_at).toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </div>
                   </div>
                 </div>
               </Link>
+            ))}
 
-              {/* Columna Derecha (Otras Noticias) */}
-              {otrasNoticias.length > 0 && (
-                <div className="lg:w-1/3 flex flex-col gap-6">
-                  <h3 className="text-lg font-black text-gray-900 uppercase tracking-wider border-b-2 border-gray-200 pb-2">Destacados</h3>
-                  
-                  <div className="flex flex-col gap-6 h-full justify-between">
-                    {otrasNoticias.map((noticia) => (
-                      <Link href={`/noticias/${noticia.slug}`} key={noticia.id} className="group flex gap-4 items-center bg-white p-3 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
-                        {/* Foto Miniatura */}
-                        <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gray-100 relative">
-                          {noticia.foto_portada ? (
-                            <img src={noticia.foto_portada} alt={noticia.titulo} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                          ) : (
-                            <span className="material-symbols-outlined w-full h-full flex items-center justify-center text-gray-400">image</span>
-                          )}
-                        </div>
-                        
-                        {/* Texto Miniatura */}
-                        <div className="flex flex-col flex-1">
-                          {noticia.etiquetas && noticia.etiquetas.length > 0 && (
-                            <span className="text-[10px] font-black text-primary uppercase tracking-wider mb-1 block">
-                              {noticia.etiquetas[0]}
-                            </span>
-                          )}
-                          <h4 className="font-bold text-gray-900 text-sm leading-snug group-hover:text-primary transition-colors line-clamp-3">
-                            {noticia.titulo}
-                          </h4>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Resto de Noticias (Grid Inferior) */}
-            {restoNoticias.length > 0 && (
-              <div className="mt-20">
-                <h3 className="text-xl font-black text-gray-900 uppercase tracking-wider mb-8 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">article</span> Más Publicaciones
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {restoNoticias.map((noticia) => (
-                    <Link href={`/noticias/${noticia.slug}`} key={noticia.id} className="group flex flex-col bg-white rounded-[2rem] overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                      <div className="aspect-[4/3] w-full bg-gray-100 relative overflow-hidden">
-                        {noticia.foto_portada ? (
-                          <img src={noticia.foto_portada} alt={noticia.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span className="material-symbols-outlined text-4xl">image</span>
-                          </div>
-                        )}
-                        {noticia.etiquetas && noticia.etiquetas.length > 0 && (
-                          <div className="absolute top-4 left-4">
-                            <span className="bg-white/95 text-gray-900 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-                              {noticia.etiquetas[0]}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-6 flex flex-col flex-1">
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
-                          <span className="material-symbols-outlined text-[14px]">schedule</span>
-                          {new Date(noticia.created_at).toLocaleDateString('es-ES')}
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-primary transition-colors">
-                          {noticia.titulo}
-                        </h3>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
+              <span className="text-gray-500 font-bold text-sm">Página {currentPage} de {totalPages}</span>
+              <div className="flex gap-2">
+                <Link 
+                  href={currentPage <= 1 ? '#' : `/noticias?page=${currentPage - 1}`} 
+                  className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-2 ${currentPage <= 1 ? 'bg-gray-100 text-gray-400 pointer-events-none' : 'bg-white border-2 border-gray-200 text-gray-800 hover:border-primary hover:text-primary'}`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">arrow_back</span> Anterior
+                </Link>
+                <Link 
+                  href={currentPage >= totalPages ? '#' : `/noticias?page=${currentPage + 1}`} 
+                  className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors flex items-center gap-2 ${currentPage >= totalPages ? 'bg-gray-100 text-gray-400 pointer-events-none' : 'bg-primary text-white hover:bg-[#cc0000]'}`}
+                >
+                  Siguiente <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                </Link>
               </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
       </main>
       <Footer />

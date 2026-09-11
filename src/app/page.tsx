@@ -20,6 +20,13 @@ interface SlideData {
   btn2Link?: string;
 }
 
+function optimizeImageUrl(url: string) {
+  if (url && url.includes('res.cloudinary.com') && !url.includes('q_auto')) {
+    return url.replace('/image/upload/', '/image/upload/q_auto,f_auto,w_1920,c_limit/');
+  }
+  return url;
+}
+
 // Datos para el Slider del Hero
 const heroSlides: SlideData[] = [
   {
@@ -141,7 +148,7 @@ export default function Home() {
               currentSlide === index ? "opacity-100" : "opacity-0"
             }`}
           >
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${slide.bg}')` }}></div>
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${optimizeImageUrl(slide.bg)}')` }}></div>
             {/* Soft white gradient overlay to ensure text readability in light theme */}
             <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40"></div>
           </div>

@@ -13,7 +13,6 @@ import { CldUploadWidget } from 'next-cloudinary';
 
 export default function NoticiasAdmin() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("portada");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   
@@ -116,89 +115,11 @@ export default function NoticiasAdmin() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-display font-black text-gray-900 mb-2 tracking-tight">Gestor de Contenido</h1>
-        <p className="text-gray-500 font-medium">Controla la portada de la escuela y las noticias del blog.</p>
+        <h1 className="text-3xl font-display font-black text-gray-900 mb-2 tracking-tight">Crear Noticia</h1>
+        <p className="text-gray-500 font-medium">Publica un nuevo artículo o evento en el blog oficial del instituto.</p>
       </div>
-
-      {/* Tabs */}
-      <div className="flex space-x-2 bg-gray-200/50 p-1 rounded-2xl mb-8 w-fit">
-        <button 
-          onClick={() => setActiveTab("portada")}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all ${
-            activeTab === "portada" ? "bg-white text-primary shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
-          }`}
-        >
-          <span className="material-symbols-outlined text-[20px]">view_carousel</span>
-          Slide Principal (Portada)
-        </button>
-        <button 
-          onClick={() => setActiveTab("blog")}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all ${
-            activeTab === "blog" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
-          }`}
-        >
-          <span className="material-symbols-outlined text-[20px]">article</span>
-          Publicar en Blog
-        </button>
-      </div>
-
-      {/* Contenido de la Pestaña 1: Portada */}
-      {activeTab === "portada" && (
-        <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm animate-fade-in-up">
-          <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
-            <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
-              <span className="material-symbols-outlined">edit_document</span>
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Actualizar Foto Principal</h2>
-              <p className="text-sm text-gray-500">Cambia la imagen gigante y los textos que salen al entrar a crossover.com</p>
-            </div>
-          </div>
-
-          <form className="space-y-6">
-            {/* Foto Uploader */}
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Foto de Fondo (Cloudinary)</label>
-              <div className="w-full h-48 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors">
-                <span className="material-symbols-outlined text-4xl text-gray-400 mb-2">add_photo_alternate</span>
-                <p className="text-sm font-medium text-gray-600">Haz clic para subir una imagen</p>
-                <p className="text-xs text-gray-400 mt-1">Recomendado: 1920x1080px</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Título Principal (H1)</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Ej. ¡Inscripciones Abiertas!" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Subtítulo (Opcional)</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Ej. El momento de trascender es hoy." />
-              </div>
-
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-6">
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Texto del Botón de Acción</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Ej. ¡Inscríbete Hoy!" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Enlace del Botón (Link)</label>
-                <input type="text" className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Ej. /inscripcion o https://..." />
-              </div>
-            </div>
-
-            <button type="button" className="bg-primary text-white py-4 px-8 rounded-xl font-bold uppercase tracking-widest text-sm hover:bg-[#cc0000] transition-colors w-full md:w-auto flex items-center gap-2">
-
-              <span className="material-symbols-outlined text-[20px]">cloud_upload</span> Actualizar Portada
-            </button>
-          </form>
-        </div>
-      )}
 
       {/* Contenido de la Pestaña 2: Blog */}
-      {activeTab === "blog" && (
         <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm animate-fade-in-up">
           <div className="flex items-center gap-4 mb-8 border-b border-gray-100 pb-6">
             <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
@@ -338,7 +259,6 @@ export default function NoticiasAdmin() {
             </button>
           </form>
         </div>
-      )}
     </div>
   );
 }
