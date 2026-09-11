@@ -38,6 +38,14 @@ export async function createNoticia(data: {
 }) {
   try {
     await checkAuth(); // Proteger la ruta
+    
+    // CANDADO ANTI-CHOQUES: Verificar si el slug ya existe
+    const { data: existing } = await supabase.from('noticias').select('id').eq('slug', data.slug).maybeSingle();
+    if (existing) {
+      // Si existe, le agregamos un número aleatorio de 4 dígitos al final
+      data.slug = `${data.slug}-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
     const { error } = await supabase.from('noticias').insert([data]);
     if (error) {
       console.error("Supabase insert error:", error);
