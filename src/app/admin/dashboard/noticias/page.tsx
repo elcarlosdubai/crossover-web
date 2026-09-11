@@ -11,23 +11,30 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export default async function ListadoNoticiasAdmin({
   searchParams,
 }: {
-  searchParams: { query?: string };
+  searchParams: { query?: string; page?: string };
 }) {
   
   const query = searchParams.query || "";
+  const currentPage = Number(searchParams.page) || 1;
+  const ITEMS_PER_PAGE = 10;
+  const from = (currentPage - 1) * ITEMS_PER_PAGE;
+  const to = from + ITEMS_PER_PAGE - 1;
 
   // Construir la consulta a Supabase
   let supabaseQuery = supabase
     .from('noticias')
-    .select('*')
-    .not('etiquetas', 'cs', '{"SYSTEM_SLIDE"}').order('created_at', { ascending: false });
+    .select('*', { count: 'exact' })
+    .not('etiquetas', 'cs', '{"SYSTEM_SLIDE"}')
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
   // Si hay búsqueda, filtrar por título
   if (query) {
     supabaseQuery = supabaseQuery.ilike('titulo', `%${query}%`);
   }
 
-  const { data: noticias, error } = await supabaseQuery;
+  const { data: noticias, count, error } = await supabaseQuery;
+  const totalPages = count ? Math.ceil(count / ITEMS_PER_PAGE) : 1;
 
   if (error) {
     console.error("Error cargando noticias:", error);
@@ -119,7 +126,21 @@ export default async function ListadoNoticiasAdmin({
         {/* Paginación */}
         {noticias && noticias.length > 0 && (
           <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-sm">
-            <span className="text-gray-500 font-medium">Mostrando {noticias.length} resultados</span>
+            <span className="text-gray-500 font-medium">Mostrando página {currentPage} de {totalPages} ({count} resultados totales)</span>
+            <div className="flex gap-2">
+              <Link 
+                href={`?page=${currentPage - 1}${query ? `&query=${query}` : ''}`} 
+                className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors ${currentPage <= 1 ? 'bg-gray-100 text-gray-400 pointer-events-none' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'}`}
+              >
+                Anterior
+              </Link>
+              <Link 
+                href={`?page=${currentPage + 1}${query ? `&query=${query}` : ''}`} 
+                className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors ${currentPage >= totalPages ? 'bg-gray-100 text-gray-400 pointer-events-none' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'}`}
+              >
+                Siguiente
+              </Link>
+            </div>
           </div>
         )}
       </div>

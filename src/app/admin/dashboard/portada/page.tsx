@@ -8,21 +8,27 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export default async function ListadoPortada({ searchParams }: { searchParams: { query?: string } }) {
+export default async function ListadoPortada({ searchParams }: { searchParams: { query?: string; page?: string } }) {
   const query = searchParams.query || "";
+  const currentPage = Number(searchParams.page) || 1;
+  const ITEMS_PER_PAGE = 10;
+  const from = (currentPage - 1) * ITEMS_PER_PAGE;
+  const to = from + ITEMS_PER_PAGE - 1;
 
-  // Query ONLY SYSTEM_SLIDE
+  // Query ONLY SYSTEM_SLIDE using contains
   let supabaseQuery = supabase
     .from('noticias')
-    .select('*')
-    .order('created_at', { ascending: false });
+    .select('*', { count: 'exact' })
+    .contains('etiquetas', ['SYSTEM_SLIDE'])
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
   if (query) {
     supabaseQuery = supabaseQuery.ilike('titulo', `%${query}%`);
   }
 
-  const { data: allNoticias, error } = await supabaseQuery;
-  const slides = allNoticias ? allNoticias.filter(n => n.etiquetas && n.etiquetas.includes('SYSTEM_SLIDE')) : [];
+  const { data: slides, count, error } = await supabaseQuery;
+  const totalPages = count ? Math.ceil(count / ITEMS_PER_PAGE) : 1;
   
 
 
@@ -94,6 +100,27 @@ export default async function ListadoPortada({ searchParams }: { searchParams: {
             </tbody>
           </table>
         </div>
+        
+        {/* Paginación */}
+        {slides && slides.length > 0 && (
+          <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-sm">
+            <span className="text-gray-500 font-medium">Mostrando página {currentPage} de {totalPages} ({count} resultados totales)</span>
+            <div className="flex gap-2">
+              <Link 
+                href={`?page=${currentPage - 1}${query ? `&query=${query}` : ''}`} 
+                className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors ${currentPage <= 1 ? 'bg-gray-100 text-gray-400 pointer-events-none' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'}`}
+              >
+                Anterior
+              </Link>
+              <Link 
+                href={`?page=${currentPage + 1}${query ? `&query=${query}` : ''}`} 
+                className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-colors ${currentPage >= totalPages ? 'bg-gray-100 text-gray-400 pointer-events-none' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'}`}
+              >
+                Siguiente
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

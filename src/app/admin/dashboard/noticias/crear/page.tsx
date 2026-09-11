@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Youtube from '@tiptap/extension-youtube'
@@ -11,6 +12,7 @@ import { CldUploadWidget } from 'next-cloudinary';
 
 
 export default function NoticiasAdmin() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("portada");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -46,12 +48,7 @@ export default function NoticiasAdmin() {
     setIsSaving(false);
     if (res.success) {
       alert("✅ ¡Noticia publicada con éxito en Supabase!");
-      setTitulo("");
-      setSlug("");
-      setPortadaUrl("");
-      setGaleriaUrls([]);
-      setTags([]);
-      editor.commands.setContent("");
+      router.push("/admin/dashboard/noticias");
     } else {
       alert("❌ Error: " + res.error);
     }

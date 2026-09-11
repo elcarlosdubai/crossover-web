@@ -1,6 +1,7 @@
 "use server";
 import { createClient } from '@supabase/supabase-js';
 import { checkAuth } from '@/utils/supabase/server';
+import { revalidatePath } from 'next/cache';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
@@ -18,6 +19,7 @@ export async function createSlide(data: any) {
       etiquetas: ['SYSTEM_SLIDE']
     }]);
     if (error) return { success: false, error: error.message };
+    revalidatePath('/admin/dashboard/portada');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -35,6 +37,7 @@ export async function updateSlide(id: number, data: any) {
       galeria_urls: [data.tag, data.btnText, data.btnLink, data.btn2Text, data.btn2Link]
     }).eq('id', id);
     if (error) return { success: false, error: error.message };
+    revalidatePath('/admin/dashboard/portada');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -46,6 +49,7 @@ export async function deleteSlide(id: number) {
     await checkAuth(); // Proteger la ruta
     const { error } = await supabase.from('noticias').delete().eq('id', id);
     if (error) return { success: false, error: error.message };
+    revalidatePath('/admin/dashboard/portada');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
