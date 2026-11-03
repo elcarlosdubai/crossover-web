@@ -40,7 +40,13 @@ export default function PhotoGallery({ images }: { images: string[] }) {
             onClick={() => setSelectedIndex(index)}
             className="aspect-square bg-gray-100 rounded-2xl overflow-hidden cursor-pointer group relative"
           >
-            <img src={url} alt={`Galería ${index + 1}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+            <img 
+              src={url} 
+              alt={`Galería ${index + 1}`} 
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+            />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
               <span className="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 transition-opacity text-3xl drop-shadow-md">zoom_in</span>
             </div>

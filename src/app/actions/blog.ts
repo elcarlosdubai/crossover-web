@@ -52,6 +52,10 @@ export async function createNoticia(data: {
       return { success: false, error: error.message };
     }
     revalidatePath('/admin/dashboard/noticias');
+    revalidatePath('/noticias');
+    if (data.slug) {
+      revalidatePath(`/noticias/${data.slug}`);
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -66,6 +70,7 @@ export async function deleteNoticia(id: number) {
       return { success: false, error: error.message };
     }
     revalidatePath('/admin/dashboard/noticias');
+    revalidatePath('/noticias');
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -88,6 +93,10 @@ export async function updateNoticia(id: number, data: {
       return { success: false, error: error.message };
     }
     revalidatePath('/admin/dashboard/noticias');
+    revalidatePath('/noticias');
+    if (data.slug) {
+      revalidatePath(`/noticias/${data.slug}`);
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };

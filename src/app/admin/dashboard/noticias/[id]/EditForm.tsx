@@ -117,11 +117,53 @@ export default function EditForm({ initialData }: { initialData: any }) {
                 >
                   {({ open }) => (
                     <button type="button" onClick={() => open()} className={`w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-4 ${galeriaUrls.length > 0 ? 'text-gray-800' : 'text-blue-600'} font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors h-[46px]`}>
-                      <span className="material-symbols-outlined text-[20px]">collections</span> 
-                      {galeriaUrls.length > 0 ? `${galeriaUrls.length} Fotos` : 'Subir Galería'}
+                      <span className="material-symbols-outlined text-[20px]">add_photo_alternate</span> 
+                      Añadir más fotos a la Galería
                     </button>
                   )}
                 </CldUploadWidget>
+
+                {/* BOTÓN RÁPIDO PARA GUARDAR CAMBIOS DE FOTOS INMEDIATAMENTE */}
+                <button
+                  type="button"
+                  onClick={handleGuardar}
+                  disabled={isSaving}
+                  className="w-full mt-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-[16px]">save</span>
+                  {isSaving ? "Guardando fotos..." : "Guardar Fotos en la Base de Datos"}
+                </button>
+
+                {/* VISOR DE FOTOS DE LA GALERÍA PARA VER Y BORRAR */}
+                {galeriaUrls && galeriaUrls.length > 0 && (
+                  <div className="mt-3 p-3 bg-gray-50 rounded-2xl border border-gray-200">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-gray-600 uppercase">Fotos en Galería ({galeriaUrls.length}):</span>
+                      <button 
+                        type="button" 
+                        onClick={() => { if (confirm("¿Vaciar toda la galería?")) setGaleriaUrls([]); }}
+                        className="text-[10px] text-red-600 font-bold hover:underline"
+                      >
+                        Borrar todas
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-1">
+                      {galeriaUrls.map((url, i) => (
+                        <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border border-gray-300 shadow-2xs">
+                          <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            title="Eliminar esta foto de la galería"
+                            onClick={() => setGaleriaUrls(galeriaUrls.filter((_, idx) => idx !== i))}
+                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shadow-md transition-transform hover:scale-110"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               

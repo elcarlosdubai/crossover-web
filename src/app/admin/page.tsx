@@ -95,10 +95,9 @@ export default function AdminLogin() {
             )}
           </button>
         </form>
-
-        <p className="text-center text-xs text-gray-400 mt-8 font-medium">
-          Acceso restringido a personal autorizado.
-        </p>
+        <div className="mt-8 text-center text-xs text-gray-400 font-medium">
+          Sistema Integral Crossover • Acceso Restringido
+        </div>
       </div>
     </main>
   );

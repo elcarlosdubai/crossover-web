@@ -9,7 +9,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supab
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function NoticiaLectura({ params }: { params: { slug: string } }) {
   const { data: noticia, error } = await supabase
@@ -36,7 +37,7 @@ export default async function NoticiaLectura({ params }: { params: { slug: strin
 
   return (
     <div className="bg-white min-h-screen">
-      <Navbar />
+      {/* Navbar handled by RootLayout */}
       
       <main className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-12">
@@ -127,7 +128,7 @@ export default async function NoticiaLectura({ params }: { params: { slug: strin
 
         </div>
       </main>
-      <Footer />
+      {/* Footer handled by RootLayout */}
     </div>
   );
 }

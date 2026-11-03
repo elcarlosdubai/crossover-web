@@ -180,6 +180,33 @@ export default function NoticiasAdmin() {
               </div>
             </div>
 
+            {/* VISTA PREVIA VISUAL DE LA PORTADA Y GALERÍA SUBIDAS */}
+            {(portadaUrl || galeriaUrls.length > 0) && (
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-3">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Vista Previa de Fotos Subidas:</span>
+                <div className="flex flex-wrap gap-3 items-center">
+                  {portadaUrl && (
+                    <div className="relative group w-24 h-24 rounded-xl overflow-hidden border-2 border-emerald-500 shadow-sm">
+                      <img src={portadaUrl} alt="Portada Preview" className="w-full h-full object-cover" />
+                      <span className="absolute bottom-1 left-1 bg-emerald-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded">Portada</span>
+                    </div>
+                  )}
+                  {galeriaUrls.map((url, i) => (
+                    <div key={i} className="relative group w-20 h-20 rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                      <img src={url} alt={`Galeria ${i}`} className="w-full h-full object-cover" />
+                      <button 
+                        type="button" 
+                        onClick={() => setGaleriaUrls(galeriaUrls.filter((_, idx) => idx !== i))}
+                        className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Etiquetas (Tags)</label>
               <div className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 flex flex-wrap gap-2 items-center mb-2">
