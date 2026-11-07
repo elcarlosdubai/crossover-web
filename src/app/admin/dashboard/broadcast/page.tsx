@@ -1,237 +1,605 @@
 "use client";
-import React, { useState } from "react";
 
-export default function BroadcastAdmin() {
-  const [message, setMessage] = useState("");
-  const [mode, setMode] = useState("whatsapp");
-  const [emailSubject, setEmailSubject] = useState("");
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { getEstudiantesDirector } from "@/app/actions/estudiantes";
+import { getPreinscripciones } from "@/app/actions/inscripciones";
+import { ContactoBroadcast } from "@/app/api/broadcast/drip-batch/route";
+
+export default function BroadcastDripAdmin() {
+  const [canal, setCanal] = useState<"whatsapp" | "email">("whatsapp");
   const [isHtmlMode, setIsHtmlMode] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("mobile");
+  const [showConfigModal, setShowConfigModal] = useState(false);
+
+  // Mensajes
+  const [mensajeTexto, setMensajeTexto] = useState(
+    "{¡Hola|Saludos|Estimado(a)} {{nombre}}, te escribimos de *Centro Educativo Crossover* 🎓.\n\nQueremos recordarte que las plazas para {{curso}} están activas. ¿Tienes alguna pregunta para formalizar tu matrícula?"
+  );
+
+  const [codigoHtml, setCodigoHtml] = useState(
+`<div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb;">
+  <div style="background: #990000; padding: 24px; text-align: center; color: #ffffff;">
+    <h1 style="margin: 0; font-size: 18px; text-transform: uppercase; font-weight: 900;">Centro Educativo Crossover</h1>
+    <p style="margin: 4px 0 0; font-size: 12px; opacity: 0.9;">Comunicado Oficial</p>
+  </div>
+  <div style="padding: 28px 24px; color: #374151; font-size: 14px; line-height: 1.6;">
+    <p style="margin: 0 0 16px; font-weight: bold; color: #111827;">Estimado(a) {{nombre}},</p>
+    <p style="margin: 0 0 16px;">Te informamos sobre las novedades académicas para el programa <strong>{{curso}}</strong>.</p>
+    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin: 20px 0;">
+      <p style="margin: 0; font-size: 13px;"><strong>Horario asignado:</strong> {{horario}}</p>
+      <p style="margin: 6px 0 0; font-size: 13px;"><strong>Sede:</strong> Av. Las Palmas #58, Herrera</p>
+    </div>
+    <div style="text-align: center; margin-top: 24px;">
+      <a href="https://wa.me/18099220880" style="display: inline-block; background: #990000; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 13px;">Contactar a Coordinación</a>
+    </div>
+  </div>
+  <div style="background: #f3f4f6; padding: 16px; text-align: center; font-size: 11px; color: #6b7280; border-top: 1px solid #e5e7eb;">
+    Centro Educativo Crossover • Tel: (809) 922-0880 • info@crossoverrd.com
+  </div>
+</div>`
+  );
+
+  const [emailSubject, setEmailSubject] = useState("Aviso Oficial — Centro Educativo Crossover");
+
+  // Audiencia
+  const [audienciaTipo, setAudienciaTipo] = useState<"prospectos" | "todos_estudiantes">("prospectos");
+  const [contactosCargados, setContactosCargados] = useState<ContactoBroadcast[]>([]);
+  const [cargandoContactos, setCargandoContactos] = useState(false);
+
+  // Parámetros de Cadencia (Ocultos en Settings ⚙️)
+  const [modoVelocidad, setModoVelocidad] = useState<"sigiloso" | "moderado" | "rapido">("sigiloso");
+  const [tamanoLote, setTamanoLote] = useState(15);
+  const [pausaEntreLotesSegundos, setPausaEntreLotesSegundos] = useState(45);
+
+  // Estados del Motor
+  const [campanaEnProgreso, setCampanaEnProgreso] = useState(false);
+  const [campanaPausada, setCampanaPausada] = useState(false);
+  const [indiceActual, setIndiceActual] = useState(0);
+  const [totalContactos, setTotalContactos] = useState(0);
+  const [conteoExitosos, setConteoExitosos] = useState(0);
+  const [conteoFallidos, setConteoFallidos] = useState(0);
+  const [logEnvios, setLogEnvios] = useState<Array<{
+    contacto: string;
+    nombre: string;
+    success: boolean;
+    error?: string;
+    hora: string;
+  }>>([]);
+  const [estadoDripTexto, setEstadoDripTexto] = useState("Listo");
+
+  const pausarRef = useRef(false);
+  const abortarRef = useRef(false);
+
+  // Cargar contactos
+  const cargarAudiencia = async () => {
+    setCargandoContactos(true);
+    try {
+      if (audienciaTipo === "todos_estudiantes") {
+        const ests = await getEstudiantesDirector();
+        const parseados: ContactoBroadcast[] = ests
+          .map((e: any) => ({
+            id: e.id,
+            nombre: `${e.nombres} ${e.apellidos || ""}`.trim(),
+            contacto: canal === "whatsapp" ? (e.tutor_telefono || "") : (e.email || ""),
+            curso: e.curso?.nombre || "Curso Regular",
+            tanda: e.curso?.tipo || "Presencial",
+          }))
+          .filter((c: ContactoBroadcast) => c.contacto && c.contacto.length > 5);
+
+        setContactosCargados(parseados);
+        setTotalContactos(parseados.length);
+      } else {
+        const leads = await getPreinscripciones();
+        const parseados: ContactoBroadcast[] = leads
+          .map((l: any) => ({
+            id: l.id,
+            nombre: `${l.nombres_aspirante} ${l.apellidos_aspirante || ""}`.trim(),
+            contacto: canal === "whatsapp" ? (l.telefono_tutor || "") : (l.email_tutor || ""),
+            curso: l.curso_solicitado || "Curso Técnico",
+            tanda: l.horario || "Por coordinar",
+          }))
+          .filter((c: ContactoBroadcast) => c.contacto && c.contacto.length > 5);
+
+        setContactosCargados(parseados);
+        setTotalContactos(parseados.length);
+      }
+    } catch (err) {
+      console.error("Error al cargar audiencia:", err);
+    } finally {
+      setCargandoContactos(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarAudiencia();
+  }, [audienciaTipo, canal]);
+
+  const insertarTag = (tag: string) => {
+    if (canal === "email" && isHtmlMode) {
+      setCodigoHtml((prev) => prev + ` ${tag} `);
+    } else {
+      setMensajeTexto((prev) => prev + ` ${tag} `);
+    }
+  };
+
+  const previewRender = useMemo(() => {
+    const raw = canal === "email" && isHtmlMode ? codigoHtml : mensajeTexto;
+    return raw
+      .replace(/\{\{nombre\}\}/gi, "Armando González")
+      .replace(/\{\{curso\}\}/gi, "Inglés Adultos")
+      .replace(/\{\{horario\}\}/gi, "Sábados 1:00 PM - 4:00 PM");
+  }, [canal, isHtmlMode, mensajeTexto, codigoHtml]);
+
+  // Consultar estado persistente del worker en el servidor
+  const consultarEstadoServidor = async () => {
+    try {
+      const res = await fetch("/api/broadcast/status");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.pendientes > 0 || data.enProceso > 0) {
+          setCampanaEnProgreso(true);
+          const total = data.pendientes + data.enProceso + data.enviados + data.fallidos;
+          setTotalContactos(total);
+          setIndiceActual(data.enviados + data.fallidos);
+          setConteoExitosos(data.enviados);
+          setConteoFallidos(data.fallidos);
+          setEstadoDripTexto(`Enviando en segundo plano (${data.enviados}/${total})...`);
+        } else if (campanaEnProgreso) {
+          setCampanaEnProgreso(false);
+          setEstadoDripTexto("Completado");
+        }
+      }
+    } catch (e) {
+      console.error("Error consultando status del worker:", e);
+    }
+  };
+
+  useEffect(() => {
+    consultarEstadoServidor();
+    const interval = setInterval(consultarEstadoServidor, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Encolar masivo en Supabase (tarda 1 segundo y el servidor se encarga)
+  const iniciarCampana = async () => {
+    if (contactosCargados.length === 0) {
+      alert("No hay contactos válidos seleccionados.");
+      return;
+    }
+
+    if (!confirm(`¿Iniciar difusión a ${contactosCargados.length} destinatarios vía ${canal.toUpperCase()}? Se ejecutará en segundo plano aunque cierres sesión.`)) {
+      return;
+    }
+
+    setCampanaEnProgreso(true);
+    setEstadoDripTexto("Encolando en la nube...");
+
+    const mensajeAEnviar = canal === "email" && isHtmlMode ? codigoHtml : mensajeTexto;
+
+    try {
+      const res = await fetch("/api/broadcast/enqueue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          canal,
+          asunto: emailSubject,
+          plantillaMensaje: mensajeAEnviar,
+          isHtml: canal === "email" && isHtmlMode,
+          contactos: contactosCargados,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setEstadoDripTexto("✓ Campaña activa en segundo plano. Puedes cerrar sesión.");
+        consultarEstadoServidor();
+      } else {
+        alert("Error al encolar: " + data.error);
+        setCampanaEnProgreso(false);
+      }
+    } catch (err: any) {
+      alert("Error de red: " + err.message);
+      setCampanaEnProgreso(false);
+    }
+  };
+
+  const togglePausar = () => {
+    pausarRef.current = !pausarRef.current;
+    setCampanaPausada(pausarRef.current);
+  };
+
+  const cancelarCampana = () => {
+    if (confirm("¿Detener campaña?")) {
+      abortarRef.current = true;
+      pausarRef.current = false;
+      setCampanaEnProgreso(false);
+      setEstadoDripTexto("Detenido");
+    }
+  };
+
+  const pct = totalContactos > 0 ? Math.round((indiceActual / totalContactos) * 100) : 0;
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-black text-gray-900 mb-2 tracking-tight">Broadcast (Mensajería Masiva)</h1>
-        <p className="text-gray-500 font-medium">Envía anuncios masivos a múltiples estudiantes o padres a la vez.</p>
-      </div>
+    <div className="space-y-4 pb-12 font-sans max-w-7xl mx-auto">
+      {/* ================= TOOLBAR SUPERIOR COMPACTA DE UNA SOLA LÍNEA (SaaS High-End) ================= */}
+      <div className="bg-white border border-gray-200/80 rounded-2xl p-3 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        {/* GRUPO IZQUIERDO: CANAL + AUDIENCIA + FORMATO */}
+        <div className="flex items-center gap-2">
+          {/* CANAL */}
+          <div className="flex items-center bg-gray-100 p-0.5 rounded-xl text-xs font-bold">
+            <button
+              onClick={() => !campanaEnProgreso && setCanal("whatsapp")}
+              disabled={campanaEnProgreso}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                canal === "whatsapp" ? "bg-white text-gray-900 shadow-2xs" : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[15px] text-emerald-600">chat</span>
+              <span>WhatsApp</span>
+            </button>
+            <button
+              onClick={() => !campanaEnProgreso && setCanal("email")}
+              disabled={campanaEnProgreso}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                canal === "email" ? "bg-white text-gray-900 shadow-2xs" : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[15px] text-blue-600">mail</span>
+              <span>Email</span>
+            </button>
+          </div>
 
-      {/* Selector de Canal */}
-      <div className="flex space-x-2 bg-gray-200/50 p-1 rounded-2xl mb-8 w-fit">
-        <button 
-          onClick={() => setMode("whatsapp")}
-          className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all ${
-            mode === "whatsapp" ? "bg-[#25D366] text-white shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
-          }`}
-        >
-          <span className="material-symbols-outlined text-[20px]">chat</span>
-          WhatsApp
-        </button>
-        <button 
-          onClick={() => setMode("email")}
-          className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-wider transition-all ${
-            mode === "email" ? "bg-blue-600 text-white shadow-sm" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/50"
-          }`}
-        >
-          <span className="material-symbols-outlined text-[20px]">mail</span>
-          Correo Electrónico
-        </button>
-      </div>
+          <div className="h-4 w-px bg-gray-200 mx-0.5"></div>
 
-      {mode === "whatsapp" && (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in-up">
-        
-        {/* Editor de Mensaje WhatsApp */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
-            <div className="mb-6">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Destinatarios del Mensaje</label>
-              <select className="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-4 text-gray-800 font-bold focus:outline-none focus:border-[#25D366]">
-                <option>Todos los estudiantes activos (152)</option>
-                <option>Solo padres del Instituto de Inglés (89)</option>
-                <option>Solo estudiantes con pagos PENDIENTES (14)</option>
-                <option>Prospectos (No inscritos oficialmente) (32)</option>
-              </select>
-            </div>
+          {/* AUDIENCIA SELECTOR COMPACTO */}
+          <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-1 text-xs">
+            <span className="text-gray-400 font-medium">Para:</span>
+            <select
+              value={audienciaTipo}
+              disabled={campanaEnProgreso}
+              onChange={(e) => setAudienciaTipo(e.target.value as any)}
+              className="bg-transparent font-bold text-gray-800 focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="prospectos">Pre-Inscripciones ({cargandoContactos ? "..." : contactosCargados.length})</option>
+              <option value="todos_estudiantes">Estudiantes Activos</option>
+            </select>
+          </div>
 
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cuerpo del Mensaje (WhatsApp)</label>
-              <textarea 
-                rows={8} 
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-4 text-gray-800 font-medium focus:outline-none focus:border-[#25D366] focus:ring-1 focus:ring-[#25D366] resize-none" 
-                placeholder="Escribe el aviso aquí. Ej: Estimados padres, mañana no habrá docencia..."
-              ></textarea>
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-gray-400">Puedes usar *negrita* o _cursiva_ como en WhatsApp.</p>
-                <p className={`text-xs font-bold ${message.length > 500 ? 'text-red-500' : 'text-gray-400'}`}>{message.length} caracteres</p>
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-end">
-              <button className="bg-[#25D366] text-white py-4 px-10 rounded-xl font-bold uppercase tracking-widest text-sm hover:bg-[#20bd5a] transition-all flex items-center gap-3 shadow-lg shadow-[#25D366]/30 hover:shadow-[#25D366]/50 hover:-translate-y-1">
-                <span className="material-symbols-outlined">send</span> Enviar a 152 Contactos
+          {/* MODO HTML (SOLO EMAIL) */}
+          {canal === "email" && (
+            <div className="flex items-center bg-gray-100 p-0.5 rounded-xl text-xs font-bold">
+              <button
+                onClick={() => setIsHtmlMode(false)}
+                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  !isHtmlMode ? "bg-white text-gray-900 shadow-2xs" : "text-gray-500"
+                }`}
+              >
+                Texto
+              </button>
+              <button
+                onClick={() => setIsHtmlMode(true)}
+                className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+                  isHtmlMode ? "bg-white text-gray-900 shadow-2xs" : "text-gray-500"
+                }`}
+              >
+                HTML
               </button>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Vista Previa del Celular */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-6">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 ml-2">Vista Previa</h3>
-            <div className="w-full h-[500px] bg-[#EFEAE2] rounded-[2.5rem] border-8 border-gray-900 shadow-xl overflow-hidden flex flex-col relative">
-              {/* Header WhatsApp */}
-              <div className="bg-[#008069] px-4 py-3 flex items-center gap-3 text-white z-10 shadow-sm">
-                <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[20px]">school</span>
-                </div>
-                <div>
-                  <p className="font-bold text-sm leading-tight">Instituto Crossover</p>
-                  <p className="text-[10px] text-white/70">en línea</p>
-                </div>
-              </div>
-              
-              {/* Chat Body */}
-              <div className="flex-1 p-4 overflow-y-auto" style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')", backgroundSize: "cover", opacity: 0.9 }}>
-                
-                {message.length > 0 ? (
-                  <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] mb-2">
-                    <p className="text-sm text-gray-800 whitespace-pre-wrap">{message}</p>
-                    <p className="text-[10px] text-gray-400 text-right mt-1">10:45 a.m.</p>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <p className="text-xs text-center text-gray-500 bg-[#E1F3FB] px-3 py-2 rounded-xl border border-[#D5EAF4]">
-                      Escribe un mensaje para ver cómo lucirá en el celular de los padres.
-                    </p>
-                  </div>
-                )}
-                
-              </div>
-            </div>
-          </div>
+        {/* GRUPO DERECHO: ENGRANAJE CONFIG + BOTÓN DE DISPARO */}
+        <div className="flex items-center gap-2">
+          {/* BOTÓN ENGRANAJE DE PREFERENCIAS (NO OCUPA PANTALLA) */}
+          <button
+            onClick={() => setShowConfigModal(true)}
+            className="p-2 border border-gray-200 hover:bg-gray-50 rounded-xl text-gray-600 transition-colors shadow-2xs cursor-pointer flex items-center gap-1 text-xs font-bold"
+            title="Configurar cadencia y lotes"
+          >
+            <span className="material-symbols-outlined text-sm">tune</span>
+            <span className="hidden sm:inline">Ajustes</span>
+          </button>
+
+          {/* BOTÓN ENVIAR */}
+          <button
+            type="button"
+            disabled={campanaEnProgreso || contactosCargados.length === 0}
+            onClick={iniciarCampana}
+            className="bg-gray-900 hover:bg-black disabled:opacity-40 text-white py-2 px-5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-sm">send</span>
+            <span>
+              {campanaEnProgreso ? "Enviando..." : `Enviar a ${contactosCargados.length}`}
+            </span>
+          </button>
         </div>
       </div>
+
+      {/* ================= BARRA DE PROGRESO DISCRETA CUANDO ESTÁ EN MARCHA ================= */}
+      {campanaEnProgreso && (
+        <div className="bg-gray-950 text-white rounded-2xl p-4 shadow-lg flex items-center justify-between gap-4">
+          <div className="flex-1 space-y-1">
+            <div className="flex justify-between text-xs font-mono text-gray-300">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                {estadoDripTexto}
+              </span>
+              <span>{indiceActual} / {totalContactos} ({pct}%)</span>
+            </div>
+            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 transition-all duration-300"
+                style={{ width: `${pct}%` }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={togglePausar}
+              className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold"
+            >
+              {campanaPausada ? "Reanudar" : "Pausar"}
+            </button>
+            <button
+              onClick={cancelarCampana}
+              className="px-3 py-1 bg-red-600/80 hover:bg-red-600 rounded-lg text-xs font-bold"
+            >
+              Detener
+            </button>
+          </div>
+        </div>
       )}
 
-      {mode === "email" && (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in-up">
-        {/* Editor de Email */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm">
-            <div className="mb-6">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Destinatarios del Correo</label>
-              <select className="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-4 text-gray-800 font-bold focus:outline-none focus:border-blue-500">
-                <option>Boletín Informativo (Todos) (152)</option>
-                <option>Aviso de Cobros (Pendientes) (14)</option>
-              </select>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Asunto del Correo</label>
-              <input 
-                type="text" 
-                value={emailSubject}
-                onChange={(e) => setEmailSubject(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3 px-4 text-gray-800 font-bold focus:outline-none focus:border-blue-500" 
-                placeholder="Ej: Aviso importante sobre la docencia"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Cuerpo del Correo</label>
-                <button 
-                  onClick={() => setIsHtmlMode(!isHtmlMode)}
-                  className={`text-xs font-bold px-3 py-1 rounded-md flex items-center gap-1 transition-colors ${isHtmlMode ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
-                >
-                  <span className="material-symbols-outlined text-[14px]">code</span>
-                  {isHtmlMode ? 'Modo Visual' : 'Modo HTML'}
-                </button>
+      {/* ================= ÁREA DE TRABAJO: 2 COLUMNAS PURAS (EDITOR IZQ / PREVIEW DER) ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        {/* COLUMNA IZQUIERDA: EDITOR COMPLETO (7 COLUMNAS) */}
+        <div className="lg:col-span-7 space-y-3">
+          <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+            {canal === "email" && (
+              <div>
+                <input
+                  type="text"
+                  placeholder="Asunto del correo electrónico..."
+                  value={emailSubject}
+                  disabled={campanaEnProgreso}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2 text-xs font-bold text-gray-900 focus:outline-none focus:border-gray-900"
+                />
               </div>
-              
-              {isHtmlMode ? (
-                <div className="border border-gray-800 rounded-xl overflow-hidden bg-[#1E1E1E]">
-                  <div className="bg-[#2D2D2D] px-4 py-2 flex items-center gap-2 border-b border-[#404040]">
-                    <span className="text-gray-400 text-xs font-mono">index.html</span>
-                  </div>
-                  <textarea 
-                    rows={12} 
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="w-full bg-[#1E1E1E] text-[#D4D4D4] font-mono text-sm py-4 px-4 focus:outline-none resize-none" 
-                    placeholder="<!-- Pega tu código HTML aquí -->"
-                    spellCheck="false"
-                  ></textarea>
-                </div>
+            )}
+
+            {/* BARRA DE VARIABLES RÁPIDAS */}
+            <div className="flex items-center justify-between text-xs pt-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] text-gray-400 font-mono">Insertar:</span>
+                {[
+                  { tag: "{{nombre}}", label: "Nombre" },
+                  { tag: "{{curso}}", label: "Curso" },
+                  { tag: "{{horario}}", label: "Horario" },
+                ].map((t) => (
+                  <button
+                    key={t.tag}
+                    type="button"
+                    disabled={campanaEnProgreso}
+                    onClick={() => insertarTag(t.tag)}
+                    className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded-md text-[10px] font-mono font-bold text-gray-700 cursor-pointer"
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              <span className="text-[10px] text-gray-400 font-mono">
+                {canal === "email" && isHtmlMode ? `${codigoHtml.length} caracteres` : `${mensajeTexto.length} caracteres`}
+              </span>
+            </div>
+
+            {/* EDITOR */}
+            <div>
+              {canal === "email" && isHtmlMode ? (
+                <textarea
+                  rows={16}
+                  value={codigoHtml}
+                  disabled={campanaEnProgreso}
+                  onChange={(e) => setCodigoHtml(e.target.value)}
+                  placeholder="Escribe o pega aquí tu código HTML..."
+                  className="w-full bg-gray-950 text-emerald-400 border border-gray-800 rounded-xl p-3.5 text-[11px] font-mono leading-relaxed focus:outline-none focus:border-emerald-500 resize-none selection:bg-emerald-900"
+                ></textarea>
               ) : (
-                <textarea 
-                  rows={10} 
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl py-4 px-4 text-gray-800 font-medium focus:outline-none focus:border-blue-500 resize-none" 
-                  placeholder="Escribe el contenido del correo aquí..."
+                <textarea
+                  rows={14}
+                  value={mensajeTexto}
+                  disabled={campanaEnProgreso}
+                  onChange={(e) => setMensajeTexto(e.target.value)}
+                  placeholder="Escribe el mensaje aquí..."
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-xs text-gray-900 focus:outline-none focus:border-gray-900 font-mono leading-relaxed resize-none"
                 ></textarea>
               )}
             </div>
-
-            <div className="mt-8 flex justify-end">
-              <button className="bg-blue-600 text-white py-4 px-10 rounded-xl font-bold uppercase tracking-widest text-sm hover:bg-blue-700 transition-all flex items-center gap-3 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:-translate-y-1">
-                <span className="material-symbols-outlined">send</span> Enviar a 152 Correos
-              </button>
-            </div>
           </div>
+
+          {/* LOGS COMPACTOS EN TIEMPO REAL */}
+          {logEnvios.length > 0 && (
+            <div className="bg-white border border-gray-200/80 rounded-2xl p-4 shadow-xs">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-gray-400 block mb-2">
+                Log de Envíos (Registrados en Centro de Mando)
+              </span>
+              <div className="max-h-36 overflow-y-auto divide-y divide-gray-100 text-[11px] font-mono">
+                {logEnvios.map((log, idx) => (
+                  <div key={idx} className="py-1 flex items-center justify-between gap-2">
+                    <span className={log.success ? "text-emerald-700 font-semibold" : "text-red-600"}>
+                      {log.success ? "✓" : "✕"} {log.nombre} ({log.contacto})
+                    </span>
+                    <span className="text-gray-400 text-[10px]">{log.hora}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Vista Previa del Email */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-6">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 ml-2">Vista Previa en Gmail</h3>
-            <div className="w-full h-[500px] bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden flex flex-col relative">
-              <div className="bg-gray-100 px-4 py-3 border-b border-gray-200 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                <div className="w-3 h-3 rounded-full bg-green-400"></div>
-              </div>
-              
-              <div className="p-4 border-b border-gray-100 flex items-start gap-3">
-                <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg">C</div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-gray-900 truncate">Instituto Crossover</p>
-                  <p className="text-xs text-gray-500 truncate">info@crossover.edu.do</p>
+        {/* COLUMNA DERECHA: PREVISUALIZADOR LIMPIO (5 COLUMNAS) */}
+        <div className="lg:col-span-5 space-y-3">
+          <div className="bg-white border border-gray-200/80 rounded-2xl p-4 shadow-xs sticky top-4 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+              <span className="text-xs font-bold text-gray-700">Previsualización en Vivo</span>
+
+              {canal === "email" && (
+                <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg text-[10px]">
+                  <button
+                    onClick={() => setPreviewDevice("desktop")}
+                    className={`px-2 py-0.5 rounded-md font-bold cursor-pointer ${
+                      previewDevice === "desktop" ? "bg-white text-gray-900 shadow-2xs" : "text-gray-500"
+                    }`}
+                  >
+                    Desktop
+                  </button>
+                  <button
+                    onClick={() => setPreviewDevice("mobile")}
+                    className={`px-2 py-0.5 rounded-md font-bold cursor-pointer ${
+                      previewDevice === "mobile" ? "bg-white text-gray-900 shadow-2xs" : "text-gray-500"
+                    }`}
+                  >
+                    Móvil
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* PREVIEW WHATSAPP MOCKUP */}
+            {canal === "whatsapp" && (
+              <div className="max-w-xs mx-auto bg-[#efeae2] border border-gray-300 rounded-3xl p-3.5 shadow-inner space-y-2.5">
+                <div className="flex items-center gap-2 pb-2 border-b border-gray-300/60">
+                  <div className="w-8 h-8 rounded-full bg-[#990000] text-white flex items-center justify-center font-black text-xs">
+                    C
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-900 leading-tight">Crossover Oficial</p>
+                    <p className="text-[10px] text-emerald-700 font-semibold">En línea</p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl rounded-tl-xs p-3 shadow-xs space-y-1.5 border border-gray-200/60">
+                  <p className="text-xs text-gray-800 whitespace-pre-wrap leading-relaxed font-sans">
+                    {previewRender}
+                  </p>
+                  <div className="flex items-center justify-end gap-1 text-[10px] text-gray-400">
+                    <span>14:32</span>
+                    <span className="material-symbols-outlined text-xs text-blue-500">done_all</span>
+                  </div>
                 </div>
               </div>
+            )}
 
-              <div className="p-6 overflow-y-auto flex-1 bg-white">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">{emailSubject || "Asunto del Correo"}</h2>
-                
-                {isHtmlMode && message.includes('<') ? (
-                  /* Render RAW HTML securely using dangerouslySetInnerHTML */
-                  <div 
-                    className="w-full"
-                    dangerouslySetInnerHTML={{ __html: message }} 
-                  />
-                ) : (
-                  <div className="text-sm text-gray-700 whitespace-pre-wrap font-medium">
-                    {message || "Aquí aparecerá el texto de tu correo electrónico..."}
-                  </div>
-                )}
-                
-                {!isHtmlMode && (
-                  <div className="mt-8 pt-6 border-t border-gray-100 flex justify-center">
-                    <div className="text-center">
-                      <p className="text-xs text-gray-400 font-bold">Instituto Crossover</p>
-                      <p className="text-[10px] text-gray-400 mt-1">Has recibido este correo porque estás inscrito en nuestra base de datos.</p>
+            {/* PREVIEW EMAIL RENDER */}
+            {canal === "email" && (
+              <div
+                className={`mx-auto border border-gray-200 rounded-xl overflow-hidden shadow-xs bg-[#f4f5f7] transition-all ${
+                  previewDevice === "mobile" ? "max-w-xs" : "w-full"
+                }`}
+              >
+                <div className="bg-white p-2.5 border-b border-gray-200 text-xs">
+                  <p className="text-gray-400 text-[10px]">De: <strong>Centro Educativo Crossover</strong></p>
+                  <p className="font-bold text-gray-900 truncate">Asunto: {emailSubject}</p>
+                </div>
+
+                <div className="p-3 bg-gray-100 max-h-[460px] overflow-y-auto">
+                  {isHtmlMode ? (
+                    <div
+                      className="bg-white rounded-xl shadow-xs overflow-hidden"
+                      dangerouslySetInnerHTML={{ __html: previewRender }}
+                    />
+                  ) : (
+                    <div className="bg-white rounded-xl p-4 shadow-xs text-xs text-gray-800 whitespace-pre-wrap leading-relaxed">
+                      <div className="pb-2 mb-2 border-b border-gray-100 font-bold text-[#990000]">
+                        Centro Educativo Crossover
+                      </div>
+                      {previewRender}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
       </div>
+
+      {/* ================= MODAL AJUSTES ⚙️ (LIMPIO Y FUERA DEL CAMINO) ================= */}
+      {showConfigModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 border border-gray-200 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <h3 className="text-sm font-black text-gray-900">Ajustes de Cadencia & Lotes</h3>
+              <button
+                onClick={() => setShowConfigModal(false)}
+                className="p-1 rounded-lg text-gray-400 hover:text-gray-700 cursor-pointer"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
+                  Velocidad
+                </label>
+                <select
+                  value={modoVelocidad}
+                  onChange={(e) => setModoVelocidad(e.target.value as any)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 focus:outline-none"
+                >
+                  <option value="sigiloso">Standard (6-12s / mensaje)</option>
+                  <option value="moderado">Balanced (4-7s / mensaje)</option>
+                  <option value="rapido">Fast (2-4s / mensaje)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
+                  Tamaño de Bloque
+                </label>
+                <select
+                  value={tamanoLote}
+                  onChange={(e) => setTamanoLote(Number(e.target.value))}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 focus:outline-none"
+                >
+                  <option value={10}>10 items</option>
+                  <option value={15}>15 items</option>
+                  <option value={25}>25 items</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
+                  Pausa entre Bloques
+                </label>
+                <select
+                  value={pausaEntreLotesSegundos}
+                  onChange={(e) => setPausaEntreLotesSegundos(Number(e.target.value))}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-900 focus:outline-none"
+                >
+                  <option value={30}>30 segundos</option>
+                  <option value={45}>45 segundos</option>
+                  <option value={60}>60 segundos</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowConfigModal(false)}
+                className="w-full py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl font-bold text-xs uppercase tracking-wider shadow-xs"
+              >
+                Listo
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
