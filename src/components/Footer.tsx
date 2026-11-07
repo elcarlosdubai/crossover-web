@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const pathname = usePathname();
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/link")) return null;
 
   return (
     <footer className="bg-primary pt-24 sm:pt-32 pb-12 relative overflow-hidden">
