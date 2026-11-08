@@ -296,9 +296,34 @@ export async function enviarMensajeHumanoWhatsApp(
   return ejecucion;
 }
 
+const BOT_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL || "https://sys.crossoverrd.com";
+const BOT_API_SECRET = process.env.WHATSAPP_API_SECRET || "Crossover*2026#SecureWaBot";
+
 export async function enviarMensajeWhatsApp(
   telefono: string,
   mensaje: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  return enviarMensajeHumanoWhatsApp(telefono, mensaje, { simularEscritura: true });
+  try {
+    const res = await fetch(`${BOT_SERVICE_URL}/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-secret": BOT_API_SECRET,
+      },
+      body: JSON.stringify({
+        telefono,
+        mensaje,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      return { success: false, error: err };
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
 }

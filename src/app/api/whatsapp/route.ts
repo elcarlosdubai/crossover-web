@@ -1,22 +1,26 @@
 import { NextResponse } from "next/server";
-import {
-  getWhatsAppStatus,
-  initWhatsAppSocket,
-  desconectarWhatsApp,
-} from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
+const BOT_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL || "https://sys.crossoverrd.com";
+const BOT_API_SECRET = process.env.WHATSAPP_API_SECRET || "Crossover*2026#SecureWaBot";
+
 export async function GET() {
   try {
-    // Si no está iniciado, disparar la inicialización
-    const status = getWhatsAppStatus();
-    if (status.status === "disconnected") {
-      // Iniciar en segundo plano
-      initWhatsAppSocket();
+    const res = await fetch(`${BOT_SERVICE_URL}/status`, {
+      headers: {
+        "x-api-secret": BOT_API_SECRET,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      return NextResponse.json({ error: `Servicio WhatsApp: ${err}` }, { status: res.status });
     }
 
-    return NextResponse.json(getWhatsAppStatus());
+    const data = await res.json();
+    return NextResponse.json(data);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
@@ -28,23 +32,38 @@ export async function POST(req: Request) {
     const { action } = body;
 
     if (action === "connect") {
-      await initWhatsAppSocket();
-      return NextResponse.json(getWhatsAppStatus());
+      const res = await fetch(`${BOT_SERVICE_URL}/connect`, {
+        method: "POST",
+        headers: { "x-api-secret": BOT_API_SECRET },
+      });
+      const data = await res.json();
+      return NextResponse.json(data);
     }
 
     if (action === "disconnect") {
-      await desconectarWhatsApp();
-      return NextResponse.json(getWhatsAppStatus());
+      const res = await fetch(`${BOT_SERVICE_URL}/disconnect`, {
+        method: "POST",
+        headers: { "x-api-secret": BOT_API_SECRET },
+      });
+      const data = await res.json();
+      return NextResponse.json(data);
     }
 
     if (action === "test_message") {
       const { telefono, mensaje } = body;
-      const { enviarMensajeWhatsApp } = await import("@/lib/whatsapp");
-      const res = await enviarMensajeWhatsApp(
-        telefono,
-        mensaje || "🚀 ¡Mensaje de prueba exitoso desde el Centro de Mando Crossover!"
-      );
-      return NextResponse.json(res);
+      const res = await fetch(`${BOT_SERVICE_URL}/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-secret": BOT_API_SECRET,
+        },
+        body: JSON.stringify({
+          telefono,
+          mensaje: mensaje || "🚀 ¡Mensaje de prueba oficial desde el Centro de Mando Crossover!",
+        }),
+      });
+      const data = await res.json();
+      return NextResponse.json(data);
     }
 
     return NextResponse.json({ error: "Acción no reconocida" }, { status: 400 });
