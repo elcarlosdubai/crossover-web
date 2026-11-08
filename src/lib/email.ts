@@ -26,6 +26,62 @@ export interface SendEmailPayload {
   curso: string;
   horario: string;
   customHtml?: string;
+  customText?: string;
+}
+
+/**
+ * Convierte cualquier HTML en texto plano limpio para los clientes de correo que no usan HTML
+ * (Obligatorio para que los filtros antispam de Google verifiquen coherencia MIME multipart/alternative).
+ */
+function extraerTextoPlano(html: string): string {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<br\s*[\/]?>/gi, "\n")
+    .replace(/<\/tr>/gi, "\n")
+    .replace(/<\/td>/gi, "  ")
+    .replace(/<[^>]+>/gi, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/\n\s*\n\s*\n/g, "\n\n")
+    .trim();
+}
+
+export function generarTextoPlanoInscripcion({
+  nombre,
+  curso,
+  horario,
+}: {
+  nombre: string;
+  curso: string;
+  horario: string;
+}) {
+  return `Centro Educativo Crossover
+Capacitación Técnica & Formación Continua
+
+¡Hola, ${nombre}!
+
+Hemos recibido formalmente tu solicitud de pre-inscripción en nuestra plataforma web. Tu plaza preliminar ha sido reservada en el sistema.
+
+Detalles de tu Solicitud:
+- Programa / Curso: ${curso}
+- Horario Elegido: ${horario}
+- Sede Presencial: Herrera, Av. Las Palmas #58 (esquina Calle 4, a 2 min de la Luperón).
+
+Un asesor de admisiones te contactará en breve vía llamada o WhatsApp para coordinar los detalles de formalización y entrega de credenciales estudiantiles.
+
+Si deseas confirmar tu cupo inmediatamente, puedes comunicarte por WhatsApp:
+https://wa.me/18099220880
+
+--
+Centro Educativo Crossover
+Av. Las Palmas #58, esquina Calle 4, Herrera • Santo Domingo Oeste
+Teléfono: (809) 922-0880 • info@crossoverrd.com • www.crossoverrd.com`;
 }
 
 export function generarHtmlInscripcion({
@@ -132,18 +188,41 @@ export async function enviarEmailConfirmacion({
   curso,
   horario,
   customHtml,
+  customText,
 }: SendEmailPayload) {
   try {
     const html = customHtml
       ? customHtml
       : generarHtmlInscripcion({ nombre, curso, horario });
 
+    const text = customText
+      ? customText
+      : customHtml
+      ? extraerTextoPlano(customHtml)
+      : generarTextoPlanoInscripcion({ nombre, curso, horario });
+
+    const messageIdDomain = "crossoverrd.com";
+    const timestamp = Date.now();
+    const randomHex = Math.random().toString(36).substring(2, 10);
+    const customMessageId = `<crossover-${timestamp}-${randomHex}@${messageIdDomain}>`;
+
     const info = await transporter.sendMail({
-      from: smtpFrom,
+      from: `"Centro Educativo Crossover" <info@crossoverrd.com>`,
       to,
+      replyTo: "info@crossoverrd.com",
       subject,
-      html,
+      text, // VERSIÓN TEXTO PLANO OBLIGATORIA PARA MÁXIMA ENTREGABILIDAD
+      html, // VERSIÓN HTML CORPORATIVA
+      messageId: customMessageId,
+      headers: {
+        "X-Mailer": "Crossover Education Mail Engine 2026",
+        "X-Entity-Ref-ID": `CR-${timestamp}`,
+        "Auto-Submitted": "auto-generated",
+        "List-Unsubscribe": "<mailto:info@crossoverrd.com?subject=unsubscribe>",
+      },
     });
+
+    console.log(`[Email Transaccional Entregado]: ${to} -> ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (error: any) {
     console.error("Error al enviar email via SMTP:", error);
