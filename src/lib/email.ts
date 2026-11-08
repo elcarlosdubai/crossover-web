@@ -107,11 +107,14 @@ export function generarHtmlInscripcion({
         <td align="center">
           <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 580px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
             <tr>
-              <td style="background-color: #990000; padding: 28px 32px; text-align: center;">
-                <h1 style="margin: 0; color: #ffffff; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">
-                  Centro Educativo Crossover
-                </h1>
-                <p style="margin: 4px 0 0; color: rgba(255,255,255,0.85); font-size: 12px; font-weight: 500;">
+              <td style="background-color: #990000; padding: 32px 32px 24px; text-align: center;">
+                <img 
+                  src="https://www.crossoverrd.com/blanco.png" 
+                  alt="Centro Educativo Crossover" 
+                  width="170" 
+                  style="display: block; margin: 0 auto 12px; max-width: 170px; height: auto; border: 0;"
+                />
+                <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
                   Capacitación Técnica & Formación Continua
                 </p>
               </td>
