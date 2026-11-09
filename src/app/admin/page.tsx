@@ -2,9 +2,10 @@
 import React, { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,17 +15,44 @@ export default function AdminLogin() {
     setLoading(true);
     setError("");
 
+    let loginEmail = identifier.trim().toLowerCase();
+
+    // Si no contiene '@', es un username directo (ej: cbaez o pedro) -> convertir a email interno
+    if (!loginEmail.includes("@")) {
+      loginEmail = `${loginEmail}@crossover.local`;
+    }
+
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
+    let { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
       password,
     });
 
-    if (error) {
-      setError("Correo o contraseña incorrectos.");
+    // Si falló y el usuario escribió un correo externo (ej: cbaez@parkwaytoyota.com),
+    // buscar en perfiles_usuarios si ese correo está registrado y obtener su usuario interno
+    if (authError && identifier.includes("@")) {
+      const { data: profile } = await supabase
+        .from("perfiles_usuarios")
+        .select("id, email")
+        .eq("email", loginEmail)
+        .maybeSingle();
+
+      if (profile && profile.id) {
+        // Intentar loguear con el usuario de ese perfil si tiene cuenta interna
+        const fallbackRes = await supabase.auth.signInWithPassword({
+          email: `${profile.id}@crossover.local`,
+          password,
+        });
+        if (!fallbackRes.error) {
+          authError = null;
+        }
+      }
+    }
+
+    if (authError) {
+      setError("Usuario o contraseña incorrectos.");
       setLoading(false);
     } else {
-      // Temporary success state until we build the dashboard
       window.location.href = "/admin/dashboard";
     }
   };
@@ -54,22 +82,27 @@ export default function AdminLogin() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-xs font-bold text-on-background-muted uppercase tracking-wider mb-2">Correo Electrónico</label>
+            <label className="block text-xs font-bold text-on-background-muted uppercase tracking-wider mb-2">Usuario o Correo</label>
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">mail</span>
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">person</span>
               <input 
-                type="email" 
+                type="text" 
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 className="w-full bg-surface border border-black/10 rounded-2xl py-4 pl-12 pr-4 text-on-background font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                placeholder="admin@crossover.com"
+                placeholder="ej: carlos o admin@crossoverrd.com"
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-xs font-bold text-on-background-muted uppercase tracking-wider mb-2">Contraseña</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold text-on-background-muted uppercase tracking-wider">Contraseña</label>
+              <Link href="/admin/recuperar" className="text-xs font-bold text-primary hover:underline">
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">lock</span>
               <input 

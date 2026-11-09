@@ -171,6 +171,162 @@ export function generarHtmlInscripcion({
   `;
 }
 
+export function generarHtmlBienvenidaUsuario({
+  nombre,
+  username,
+  password,
+  rol,
+}: {
+  nombre: string;
+  username: string;
+  password?: string;
+  rol: string;
+}) {
+  const passwordText = password || "Crossover*2026!";
+  return `
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Bienvenido al Sistema de Gestión — Crossover</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 16px;">
+      <tr>
+        <td align="center">
+          <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 25px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
+            <tr>
+              <td style="background-color: #990000; padding: 36px 32px; text-align: center;">
+                <img src="https://www.crossoverrd.com/blanco.png" alt="Centro Educativo Crossover" width="180" style="display: block; margin: 0 auto 12px; border: 0;" />
+                <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
+                  Portal de Gestión Institucional
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 36px 32px; color: #1f2937;">
+                <h1 style="margin: 0 0 16px; font-size: 22px; font-weight: 800; color: #111827; letter-spacing: -0.5px;">
+                  ¡Hola, ${nombre}! 👋
+                </h1>
+                <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #4b5563;">
+                  Se ha creado exitosamente tu cuenta de acceso para el personal administrativo y académico de <strong>Centro Educativo Crossover</strong>.
+                </p>
+
+                <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px; padding: 20px; margin: 24px 0;">
+                  <h3 style="margin: 0 0 14px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #990000;">
+                    Tus Credenciales de Acceso
+                  </h3>
+                  <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px;">
+                    <tr>
+                      <td style="padding: 6px 0; color: #6b7280; width: 140px;">Usuario de acceso:</td>
+                      <td style="padding: 6px 0; font-weight: 800; color: #111827; font-family: monospace; font-size: 15px;">@${username}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px 0; color: #6b7280;">Contraseña inicial:</td>
+                      <td style="padding: 6px 0; font-weight: 800; color: #111827; font-family: monospace; font-size: 15px;">${passwordText}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 6px 0; color: #6b7280;">Rol en el sistema:</td>
+                      <td style="padding: 6px 0; font-weight: 700; color: #990000; text-transform: capitalize;">${rol}</td>
+                    </tr>
+                  </table>
+                </div>
+
+                <div style="text-align: center; margin: 32px 0 20px;">
+                  <a href="https://www.crossoverrd.com/admin" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 14px 32px; border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 4px 14px rgba(153, 0, 0, 0.3);">
+                    Ingresar al Sistema
+                  </a>
+                </div>
+
+                <p style="margin: 0; font-size: 12px; color: #9ca3af; text-align: center;">
+                  🔒 Por seguridad, te recomendamos cambiar tu contraseña una vez hayas ingresado al portal.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="background-color: #fafafa; border-top: 1px solid #e5e7eb; padding: 20px 32px; text-align: center;">
+                <p style="margin: 0; font-size: 11px; color: #9ca3af;">
+                  Centro Educativo Crossover • Av. Las Palmas #58, Herrera • Tel: (809) 922-0880
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
+  `;
+}
+
+export function generarHtmlRecuperarPassword({
+  nombre,
+  username,
+  resetUrl,
+}: {
+  nombre: string;
+  username: string;
+  resetUrl: string;
+}) {
+  return `
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <title>Recuperación de Contraseña — Crossover</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 16px;">
+      <tr>
+        <td align="center">
+          <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 25px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
+            <tr>
+              <td style="background-color: #990000; padding: 36px 32px; text-align: center;">
+                <img src="https://www.crossoverrd.com/blanco.png" alt="Centro Educativo Crossover" width="180" style="display: block; margin: 0 auto 12px; border: 0;" />
+                <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
+                  Recuperación de Contraseña
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 36px 32px; color: #1f2937;">
+                <h1 style="margin: 0 0 16px; font-size: 22px; font-weight: 800; color: #111827; letter-spacing: -0.5px;">
+                  Hola, ${nombre}
+                </h1>
+                <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #4b5563;">
+                  Hemos recibido una solicitud para restablecer la contraseña de tu cuenta de acceso (<strong style="font-family: monospace;">@${username}</strong>).
+                </p>
+
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${resetUrl}" style="display: inline-block; background-color: #990000; color: #ffffff; padding: 15px 36px; border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 4px 14px rgba(153, 0, 0, 0.3);">
+                    Restablecer Mi Contraseña
+                  </a>
+                </div>
+
+                <p style="margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: #6b7280; text-align: center;">
+                  ⏳ <strong>Este enlace es seguro y caduca en 60 minutos.</strong>
+                </p>
+                <p style="margin: 0; font-size: 12px; color: #9ca3af; text-align: center;">
+                  Si tú no solicitaste este cambio, puedes ignorar este mensaje con tranquilidad; tu contraseña actual continuará siendo la misma.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="background-color: #fafafa; border-top: 1px solid #e5e7eb; padding: 20px 32px; text-align: center;">
+                <p style="margin: 0; font-size: 11px; color: #9ca3af;">
+                  Centro Educativo Crossover • Av. Las Palmas #58, Herrera • Tel: (809) 922-0880
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
+  `;
+}
+
 export async function enviarEmailConfirmacion({
   to,
   subject,

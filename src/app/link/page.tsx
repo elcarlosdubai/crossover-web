@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 type CategoryId = "instituto" | "informatica" | "colegio" | "deportes" | "infotep";
 
@@ -451,7 +452,8 @@ const CATEGORIES: {
   },
 ];
 
-export default function MobileLinkHub() {
+function MobileLinkHubContent() {
+  const searchParams = useSearchParams();
   const [view, setView] = useState<"categories" | "courses" | "detail" | "form">("categories");
   const [selectedCat, setSelectedCat] = useState<CategoryId | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<CourseOption | null>(null);
@@ -466,6 +468,40 @@ export default function MobileLinkHub() {
   const [email, setEmail] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [exito, setExito] = useState(false);
+
+  // Auto-selección reactiva infalible por useSearchParams (Next.js Navigation)
+  useEffect(() => {
+    const catParam = searchParams.get("cat") as CategoryId | null;
+    const cursoParam = searchParams.get("curso");
+
+    if (cursoParam) {
+      const query = cursoParam.toLowerCase().trim();
+      for (const cat of CATEGORIES) {
+        const found = cat.courses.find(
+          (c) =>
+            c.id.toLowerCase() === query ||
+            c.name.toLowerCase() === query ||
+            c.name.toLowerCase().includes(query) ||
+            query.includes(c.id.toLowerCase())
+        );
+        if (found) {
+          setSelectedCat(cat.id);
+          setSelectedCourse(found);
+          setSelectedSchedule(found.schedules[0] || "");
+          setView("detail");
+          return;
+        }
+      }
+    }
+
+    if (catParam) {
+      const foundCat = CATEGORIES.find((c) => c.id === catParam);
+      if (foundCat) {
+        setSelectedCat(catParam);
+        setView("courses");
+      }
+    }
+  }, [searchParams]);
 
   const activeCategoryData = CATEGORIES.find((c) => c.id === selectedCat);
 
@@ -1076,5 +1112,17 @@ export default function MobileLinkHub() {
 
       </div>
     </div>
+  );
+}
+
+export default function MobileLinkHub() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#fcfcfd] flex items-center justify-center text-xs font-bold text-gray-400">
+        Cargando formulario...
+      </div>
+    }>
+      <MobileLinkHubContent />
+    </Suspense>
   );
 }

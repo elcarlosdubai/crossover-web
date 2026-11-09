@@ -12,6 +12,15 @@ export default function InscripcionPage() {
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
+  // Estados reales para captura del formulario
+  const [nombre, setNombre] = useState("");
+  const [apellidos, setApellidos] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [email, setEmail] = useState("");
+  const [horario, setHorario] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const area = params.get("area") as Area;
@@ -19,9 +28,20 @@ export default function InscripcionPage() {
     if (area) setActiveArea(area);
     if (curso) {
       setActiveCourse(curso);
-      // If coming from a direct link/vitrina, they already saw the details, but we'll still show the details step just to be safe, or we could skip to form. Let's show details step.
     }
   }, []);
+
+  // Formateador de teléfono (WhatsApp RD / USA)
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+    let formatted = digits;
+    if (digits.length > 6) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else if (digits.length > 3) {
+      formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    }
+    setTelefono(formatted);
+  };
 
   // Reset form when changing course or area
   const handleAreaChange = (area: Area) => {
@@ -29,24 +49,61 @@ export default function InscripcionPage() {
     setActiveCourse(null);
     setIsFormVisible(false);
     setIsFormSubmitted(false);
+    setErrorEnvio(null);
   };
 
   const handleCourseChange = (course: Course) => {
     setActiveCourse(course);
     setIsFormVisible(false);
     setIsFormSubmitted(false);
+    setErrorEnvio(null);
   };
 
   const handleShowForm = () => {
     setIsFormVisible(true);
+    setErrorEnvio(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call to save lead
-    setIsFormSubmitted(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!nombre.trim() || !telefono.trim() || !activeCourse) return;
+
+    setEnviando(true);
+    setErrorEnvio(null);
+
+    try {
+      const payload = {
+        nombre: nombre.trim(),
+        apellidos: apellidos.trim(),
+        telefono: telefono.trim(),
+        email: email.trim() || null,
+        area: activeArea || "instituto",
+        curso: activeCourse,
+        horario: horario || "Horario regular por coordinar",
+        tipo: "inscribirme",
+      };
+
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "No se pudo procesar la solicitud.");
+      }
+
+      // Éxito: pasar a ver cuentas bancarias y requisitos
+      setIsFormSubmitted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      console.error("Error al registrar pre-inscripción:", err);
+      setErrorEnvio(err.message || "Ocurrió un error al enviar. Por favor reintenta.");
+    } finally {
+      setEnviando(false);
+    }
   };
 
   const renderLeadForm = (schedules: string[], courseName: string, areaName: string) => {
@@ -62,32 +119,71 @@ export default function InscripcionPage() {
           <p className="text-on-background-muted">Estás aplicando para: <strong>{courseName}</strong></p>
         </div>
 
+        {errorEnvio && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold flex items-center gap-2">
+            <span className="material-symbols-outlined text-base">error</span>
+            <span>{errorEnvio}</span>
+          </div>
+        )}
+
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-bold text-on-background mb-2">Nombre del Estudiante *</label>
-              <input type="text" required className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Ej. Juan" />
+              <input
+                type="text"
+                required
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                placeholder="Ej. Juan"
+              />
             </div>
             <div>
               <label className="block text-sm font-bold text-on-background mb-2">Apellidos *</label>
-              <input type="text" required className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="Ej. Pérez" />
+              <input
+                type="text"
+                required
+                value={apellidos}
+                onChange={(e) => setApellidos(e.target.value)}
+                className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                placeholder="Ej. Pérez"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-bold text-on-background mb-2">Teléfono (WhatsApp) *</label>
-              <input type="tel" required className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="809-000-0000" />
+              <input
+                type="tel"
+                required
+                value={telefono}
+                onChange={handlePhoneChange}
+                className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                placeholder="809-000-0000"
+              />
             </div>
             <div>
               <label className="block text-sm font-bold text-on-background mb-2">Correo Electrónico</label>
-              <input type="email" className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="correo@ejemplo.com" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                placeholder="correo@ejemplo.com"
+              />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-bold text-on-background mb-2">Selecciona un Horario *</label>
-            <select required className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-on-background appearance-none">
+            <select
+              required
+              value={horario}
+              onChange={(e) => setHorario(e.target.value)}
+              className="w-full bg-surface border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-on-background appearance-none"
+            >
               <option value="">-- Elige el horario de tu preferencia --</option>
               {schedules.map((s, i) => (
                 <option key={i} value={s}>{s.replace(/•/g, '').trim()}</option>
@@ -96,10 +192,129 @@ export default function InscripcionPage() {
           </div>
         </div>
 
-        <button type="submit" className="mt-10 w-full bg-primary text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:scale-[1.02] transition-transform">
-          Continuar y Ver Requisitos
+        <button
+          type="submit"
+          disabled={enviando}
+          className="mt-10 w-full bg-primary hover:bg-[#800000] text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {enviando ? (
+            <>
+              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span>Guardando en el Sistema...</span>
+            </>
+          ) : (
+            <span>Continuar y Ver Requisitos</span>
+          )}
         </button>
       </form>
+    );
+  };
+
+  // Componente de Confirmación Unificado (Exacto al diseño de /link)
+  const renderConfirmacionExitosa = (cursoNombre: string, horarioElegido: string, areaTipo: Area) => {
+    const isColegio = areaTipo === "colegio";
+    const isInfotep = areaTipo === "infotep";
+    const isDeportes = areaTipo === "deportes";
+
+    let badgeText = "Pre-Inscripción Confirmada";
+    let badgeBg = "bg-emerald-600 text-white";
+    let infoText = "Un asesor académico se comunicará a tus datos de contacto para responder tus dudas y formalizar tu matrícula.";
+
+    if (isColegio) {
+      badgeText = "Cita de Admisión Registrada";
+      badgeBg = "bg-amber-600 text-white";
+      infoText = "Nuestro departamento de admisiones se comunicará a tus datos de contacto para coordinar la fecha de tu visita al campus escolar.";
+    } else if (isInfotep) {
+      badgeText = "Solicitud Becada INFOTEP Registrada";
+      badgeBg = "bg-blue-600 text-white";
+      infoText = "Tu solicitud ha sido ingresada en el sistema. Te contactaremos vía WhatsApp para indicarte las fechas de entrega de documentación física.";
+    } else if (isDeportes) {
+      badgeText = "Pre-Inscripción Deportiva Confirmada";
+      badgeBg = "bg-orange-600 text-white";
+      infoText = "La coordinación de deportes se comunicará contigo para indicarte la fecha de pruebas diagnósticas y entrega de indumentaria.";
+    }
+
+    return (
+      <div className="animate-in fade-in zoom-in-95 duration-200 bg-white p-8 md:p-12 rounded-[2rem] border border-gray-200/90 shadow-xl max-w-2xl mx-auto text-center space-y-5">
+        {/* ÍCONO CHECK ANIMADO */}
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
+          <span className="material-symbols-outlined text-3xl font-black">check</span>
+        </div>
+
+        {/* TÍTULO Y SUBTÍTULO */}
+        <div className="space-y-1">
+          <span className={`inline-block text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-xs ${badgeBg}`}>
+            {badgeText}
+          </span>
+          <h3 className="text-2xl font-black text-gray-950 pt-1">
+            ¡Todo Listo, {nombre.trim() || "Estudiante"}!
+          </h3>
+          <p className="text-sm text-gray-600 max-w-md mx-auto">
+            Tu pre-inscripción ha sido ingresada en nuestro sistema con éxito.
+          </p>
+        </div>
+
+        {/* TARJETA RESUMEN DE SU REGISTRO */}
+        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 text-left space-y-3">
+          <span className="text-[10px] font-black uppercase tracking-wider text-gray-400 block border-b border-gray-200 pb-2">
+            Resumen de tu Solicitud
+          </span>
+          
+          <div className="space-y-2 text-xs">
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-gray-500 font-medium">Programa:</span>
+              <span className="font-bold text-gray-900 text-right">{cursoNombre}</span>
+            </div>
+
+            {horarioElegido && (
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-gray-500 font-medium">Horario seleccionado:</span>
+                <span className="font-bold text-[#990000] text-right">{horarioElegido}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-200/70">
+              <span className="text-gray-500 font-medium">Teléfono de contacto:</span>
+              <span className="font-black text-gray-900">{telefono}</span>
+            </div>
+
+            {email && (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-gray-500 font-medium">Correo electrónico:</span>
+                <span className="font-medium text-gray-700">{email}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* RECUADRO AZUL INFORMATIVO (NEUTRAL SIN PEDIR DINERO DE GOLPE) */}
+        <div className="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-4 flex items-start gap-3 text-left">
+          <span className="material-symbols-outlined text-blue-600 text-xl shrink-0 mt-0.5">info</span>
+          <p className="text-xs text-blue-950 font-medium leading-relaxed">
+            {infoText}
+          </p>
+        </div>
+
+        {/* BOTÓN PARA FINALIZAR O REGRESAR */}
+        <div className="pt-2">
+          <button
+            onClick={() => {
+              setIsFormSubmitted(false);
+              setIsFormVisible(false);
+              setActiveCourse(null);
+              setActiveArea(null);
+              setNombre("");
+              setApellidos("");
+              setTelefono("");
+              setEmail("");
+              setHorario("");
+            }}
+            className="w-full py-3.5 px-6 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm active:scale-[0.98] cursor-pointer"
+          >
+            Finalizar y Volver al Inicio
+          </button>
+        </div>
+      </div>
     );
   };
 
@@ -200,61 +415,7 @@ export default function InscripcionPage() {
     }
 
     if (isFormSubmitted) {
-    return (
-        <div className="animate-fade-in-up bg-white p-8 md:p-12 rounded-[2rem] border border-black/5 shadow-xl max-w-3xl mx-auto text-center">
-          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="material-symbols-outlined text-4xl">check_circle</span>
-          </div>
-          <h2 className="font-display text-4xl font-black text-on-background mb-4">¡Tus datos fueron recibidos!</h2>
-          <p className="text-lg text-on-background-muted mb-10">Para asegurar tu cupo en <strong>{activeCourse}</strong>, por favor completa el pago de inscripción siguiendo estas instrucciones:</p>
-          
-          <div className="bg-surface p-8 rounded-3xl border border-black/5 max-w-xl mx-auto mb-10 text-left">
-            <div className="flex justify-between items-end mb-6 border-b border-black/10 pb-4">
-              <div>
-                <p className="text-sm text-on-background-muted mb-1">Inscripción (Incluye 1er mes)</p>
-                <p className="font-display text-3xl font-black text-on-background">RD$ 2,500</p>
-              </div>
-              <div className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1.5 rounded-lg text-right">
-                OFERTA: RD$ 2,000<br/>hasta el 25 de Septiembre
-              </div>
-            </div>
-            <div>
-              <p className="text-sm text-on-background-muted mb-1">Mensualidad</p>
-              <p className="font-display text-2xl font-bold text-primary">RD$ 1,600</p>
-            </div>
-          </div>
-
-                    {activeCourse.includes("Inglés") && (
-            <div className="bg-orange-50 p-6 rounded-2xl border border-orange-200 text-left max-w-xl mx-auto mb-6">
-              <h4 className="font-bold text-orange-900 mb-2 flex items-center gap-2"><span className="material-symbols-outlined">menu_book</span> Material de Apoyo</h4>
-              <p className="text-sm text-orange-800">El libro de texto para este nivel tiene un costo de <strong>RD$ 1,700</strong> y es obligatorio para el desarrollo de las clases. Podrás adquirirlo en nuestras instalaciones.</p>
-            </div>
-          )}
-<div className="bg-yellow-50 p-6 rounded-2xl border border-yellow-200 text-left max-w-xl mx-auto">
-            <h4 className="font-bold text-yellow-900 mb-2 flex items-center gap-2"><span className="material-symbols-outlined">info</span> Métodos de Pago</h4>
-            <p className="text-sm text-yellow-800 mb-4">Realiza tu pago vía transferencia o con Tarjeta de Crédito/Débito:</p>
-            
-            <div className="bg-white p-4 rounded-xl text-sm border border-yellow-100 mb-4 font-medium">
-              <p className="mb-2 text-primary font-bold border-b pb-1">Transferencia Bancaria</p>
-              <p><strong>Banco:</strong> Popular</p>
-              <p><strong>Cuenta:</strong> 790471106 (Corriente)</p>
-              <p><strong>A nombre de:</strong> Instituto Crossover (RNC: 130684642)</p>
-              <p><strong>Correo:</strong> crossovercaja@gmail.com</p>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl text-sm border border-yellow-100 mb-4 font-medium">
-              <p className="mb-2 text-primary font-bold border-b pb-1">Pago en Línea (Tarjeta)</p>
-              <p className="mb-2">Paga seguro desde tu celular con Clink.</p>
-              <a href="https://app.portaldom.com.do/payment-link/66de6d" target="_blank" className="inline-block bg-[#004e9a] text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-[#003875] transition-colors">
-                Pagar con Tarjeta Aquí
-              </a>
-            </div>
-
-            <p className="text-xs text-yellow-800 italic">* IMPORTANTE: Al pagar, coloca SOLO los apellidos y nombres del estudiante. Envía el comprobante al WhatsApp (809-922-0880).</p>
-            <p className="text-xs text-red-600 mt-4 font-bold">* NOTA: El monto pagado por inscripción no es reembolsable bajo ninguna circunstancia.</p>
-          </div>
-        </div>
-      );
+      return renderConfirmacionExitosa(activeCourse, horario || schedule[0] || "", "instituto");
     }
 
     if (isFormVisible) {
@@ -399,63 +560,7 @@ export default function InscripcionPage() {
     }
 
     if (isFormSubmitted) {
-    return (
-        <div className="animate-fade-in-up bg-white p-8 md:p-12 rounded-[2rem] border border-black/5 shadow-xl max-w-3xl mx-auto text-center">
-          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="material-symbols-outlined text-4xl">check_circle</span>
-          </div>
-          <h2 className="font-display text-4xl font-black text-on-background mb-4">¡Tus datos fueron recibidos!</h2>
-          <p className="text-lg text-on-background-muted mb-10">Para asegurar tu lugar en <strong>{activeCourse}</strong>, por favor completa el pago siguiendo estas instrucciones:</p>
-          
-          <div className="bg-surface p-8 rounded-3xl border border-black/5 max-w-xl mx-auto mb-10 text-left">
-            <div className="flex justify-between items-end mb-6 border-b border-black/10 pb-4">
-              <div>
-                <p className="text-sm text-on-background-muted mb-1">Inscripción (Incluye 1er mes)</p>
-                <p className="font-display text-3xl font-black text-on-background">RD$ 1,500</p>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm text-on-background-muted mb-1">Mensualidad</p>
-              <p className="font-display text-2xl font-bold text-primary">RD$ 1,000</p>
-            </div>
-          </div>
-
-                    {activeCourse.includes("Inglés") && (
-            <div className="bg-orange-50 p-6 rounded-2xl border border-orange-200 text-left max-w-xl mx-auto mb-6">
-              <h4 className="font-bold text-orange-900 mb-2 flex items-center gap-2"><span className="material-symbols-outlined">menu_book</span> Material de Apoyo</h4>
-              <p className="text-sm text-orange-800">El libro de texto para este nivel tiene un costo de <strong>RD$ 1,700</strong> y es obligatorio para el desarrollo de las clases. Podrás adquirirlo en nuestras instalaciones.</p>
-            </div>
-          )}
-<div className="bg-yellow-50 p-6 rounded-2xl border border-yellow-200 text-left max-w-xl mx-auto">
-            <h4 className="font-bold text-yellow-900 mb-2 flex items-center gap-2"><span className="material-symbols-outlined">info</span> Métodos de Pago</h4>
-            <p className="text-sm text-yellow-800 mb-4">Realiza tu pago vía transferencia o con Tarjeta de Crédito/Débito:</p>
-            
-            <div className="bg-white p-4 rounded-xl text-sm border border-yellow-100 mb-4 font-medium">
-              <p className="mb-2 text-primary font-bold border-b pb-1">Transferencia Bancaria</p>
-              <p><strong>Banco:</strong> Popular</p>
-              <p><strong>Cuenta:</strong> 790471106 (Corriente)</p>
-              <p><strong>A nombre de:</strong> Instituto Crossover (RNC: 130684642)</p>
-              <p><strong>Correo:</strong> crossovercaja@gmail.com</p>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl text-sm border border-yellow-100 mb-4 font-medium">
-              <p className="mb-2 text-primary font-bold border-b pb-1">Pago en Línea (Tarjeta)</p>
-              <p className="mb-2">Paga seguro desde tu celular con Clink.</p>
-              <a href="https://app.portaldom.com.do/payment-link/66de6d" target="_blank" className="inline-block bg-[#004e9a] text-white px-4 py-2 rounded-lg font-bold text-xs hover:bg-[#003875] transition-colors">
-                Pagar con Tarjeta Aquí
-              </a>
-            </div>
-
-            <p className="text-xs text-yellow-800 italic">* IMPORTANTE: Al pagar, coloca SOLO los apellidos y nombres del estudiante. Envía el comprobante al WhatsApp (809-922-0880).</p>
-            <p className="text-xs text-red-600 mt-4 font-bold">* NOTA: El monto pagado por inscripción no es reembolsable bajo ninguna circunstancia.</p>
-          </div>
-
-          <div className="bg-blue-50 p-6 rounded-2xl border border-blue-200 text-left max-w-xl mx-auto mt-6">
-            <h4 className="font-bold text-blue-900 mb-2 flex items-center gap-2"><span className="material-symbols-outlined">styler</span> Uniformes</h4>
-            <p className="text-sm text-blue-800">Los estudiantes deben asistir con el uniforme completo y en buen estado. Estará disponible a la venta en nuestra tienda física.</p>
-          </div>
-        </div>
-      );
+      return renderConfirmacionExitosa(activeCourse, horario || schedule[0] || "", "deportes");
     }
 
     if (isFormVisible) {
@@ -611,36 +716,7 @@ export default function InscripcionPage() {
     ];
 
     if (isFormSubmitted) {
-    return (
-        <div className="animate-fade-in-up bg-white p-8 md:p-12 rounded-[2rem] border border-black/5 shadow-xl max-w-3xl mx-auto text-center">
-          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="material-symbols-outlined text-4xl">check_circle</span>
-          </div>
-          <h2 className="font-display text-4xl font-black text-on-background mb-4">¡Tus datos fueron recibidos!</h2>
-          <p className="text-lg text-on-background-muted mb-10">Tu registro para <strong>{activeCourse}</strong> está casi listo. Por favor completa los siguientes pasos obligatorios:</p>
-          
-          <div className="bg-red-50 p-8 rounded-3xl border border-red-100 max-w-xl mx-auto text-left mb-8">
-            <div className="flex items-center gap-4 mb-4">
-              <span className="material-symbols-outlined text-4xl text-red-600">storefront</span>
-              <h3 className="font-bold text-xl text-red-900">Inscripción Presencial</h3>
-            </div>
-            <p className="text-sm text-red-800 mb-6 leading-relaxed">
-              Los cursos de INFOTEP son gratuitos, pero requieren validación física. Descarga, imprime y llena el formulario de inscripción para ahorrar tiempo al llegar a nuestras instalaciones.
-            </p>
-            
-            <h4 className="font-bold text-sm text-red-900 mb-2">Requisitos a llevar:</h4>
-            <ul className="text-sm text-red-800 mb-6 space-y-1">
-              <li>• Certificado de bachiller o carta de estudios de 5to.</li>
-              <li>• 2 fotocopias de la cédula.</li>
-              <li>• Formulario físico lleno.</li>
-            </ul>
-
-            <a href="/FormulariodeInfortep.pdf" download className="flex items-center justify-center gap-2 text-center w-full bg-red-600 text-white px-4 py-4 rounded-xl font-bold uppercase tracking-wider text-sm hover:bg-red-700 shadow-md transition-all">
-              <span className="material-symbols-outlined text-lg">download</span> Descargar PDF
-            </a>
-          </div>
-        </div>
-      );
+      return renderConfirmacionExitosa(activeCourse, horario || schedule[0] || "", "infotep");
     }
 
     if (isFormVisible) {
