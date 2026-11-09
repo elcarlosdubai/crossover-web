@@ -227,7 +227,7 @@ export default function CentroDeMandoComunicaciones() {
   // Sondeo periódico cuando el modal de QR está abierto
   useEffect(() => {
     if (!waModalOpen) return;
-    handleConectarWhatsApp();
+    consultarEstadoWhatsApp();
     const interval = setInterval(consultarEstadoWhatsApp, 2500);
     return () => clearInterval(interval);
   }, [waModalOpen]);
