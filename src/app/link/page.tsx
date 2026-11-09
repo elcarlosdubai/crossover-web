@@ -1030,18 +1030,8 @@ export default function MobileLinkHub() {
                     </p>
                   </div>
 
-                  {/* BOTÓN DE ACCIÓN INMEDIATA WHATSAPP */}
-                  <div className="pt-1 space-y-2">
-                    <a
-                      href={`https://wa.me/18099220880?text=Hola%20Crossover,%20acabo%20de%20completar%20mi%20pre-inscripción%20para%20${encodeURIComponent(selectedCourse.name)}%20a%20nombre%20de%20${encodeURIComponent(nombre + " " + apellidos)}.`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 active:scale-[0.98] transition-all cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-lg">chat</span>
-                      <span>¿Quieres agilizar? Escríbenos al WhatsApp</span>
-                    </a>
-
+                  {/* BOTÓN LIMPIO INSTITUCIONAL DE RETORNO */}
+                  <div className="pt-2">
                     <button
                       onClick={() => {
                         setExito(false);
@@ -1052,9 +1042,9 @@ export default function MobileLinkHub() {
                         setTelefono("");
                         setEmail("");
                       }}
-                      className="w-full py-2.5 text-xs font-bold text-gray-500 hover:text-gray-800 transition-colors"
+                      className="w-full py-3 px-4 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-wider transition-all shadow-sm active:scale-[0.98] cursor-pointer"
                     >
-                      Volver al Menú Principal
+                      Volver al Inicio
                     </button>
                   </div>
                 </div>
