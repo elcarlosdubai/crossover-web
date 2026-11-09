@@ -29,11 +29,11 @@ export async function startBackgroundBroadcastWorker() {
   (async () => {
     try {
       while (true) {
-        // 1. Buscar los próximos 10 mensajes pendientes tipo broadcast ordenados por fecha
+        // 1. Buscar los próximos 10 mensajes pendientes (tanto leads web como broadcasts)
         const { data: pendientes, error } = await supabase
           .from("registro_comunicaciones")
           .select("*")
-          .eq("tipo_evento", "broadcast")
+          .in("canal", ["whatsapp", "email"])
           .eq("estado", "pendiente")
           .order("created_at", { ascending: true })
           .limit(10);
