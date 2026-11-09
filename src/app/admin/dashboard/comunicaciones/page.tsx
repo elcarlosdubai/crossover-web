@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { createClient } from "@/utils/supabase/client";
 import {
   getComunicaciones,
   actualizarAlarmaCompleta,
@@ -222,6 +223,38 @@ export default function CentroDeMandoComunicaciones() {
 
   useEffect(() => {
     cargarDatos();
+
+    // SUSCRIPCIÓN EN TIEMPO REAL VÍA SUPABASE (AUDITORÍA 100% VERÍDICA)
+    const supabase = createClient();
+    const canalRealtime = supabase
+      .channel("registro_comunicaciones_live")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "registro_comunicaciones",
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const nueva = payload.new as ComunicacionRecord;
+            setAlarmas((prev) => [nueva, ...prev.filter((a) => a.id !== nueva.id)]);
+          } else if (payload.eventType === "UPDATE") {
+            const actualizada = payload.new as ComunicacionRecord;
+            setAlarmas((prev) =>
+              prev.map((a) => (a.id === actualizada.id ? actualizada : a))
+            );
+          } else if (payload.eventType === "DELETE") {
+            const idBorrado = payload.old.id;
+            setAlarmas((prev) => prev.filter((a) => a.id !== idBorrado));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(canalRealtime);
+    };
   }, []);
 
   // Sondeo periódico cuando el modal de QR está abierto
@@ -803,7 +836,7 @@ export default function CentroDeMandoComunicaciones() {
                             )}
                           </td>
 
-                          {/* ESTADO */}
+                          {/* ESTADO CON AUDITORÍA REAL DE ERROR */}
                           <td className="py-3.5 px-4 whitespace-nowrap">
                             {item.estado === "pendiente" ? (
                               <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md">
@@ -811,10 +844,17 @@ export default function CentroDeMandoComunicaciones() {
                                 Pendiente
                               </span>
                             ) : item.estado === "fallido" ? (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-black text-red-700 bg-red-50 px-2 py-0.5 rounded-md">
-                                <span className="material-symbols-outlined text-[11px]">error</span>
-                                Fallido
-                              </span>
+                              <div className="space-y-0.5">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-black text-red-700 bg-red-50 px-2 py-0.5 rounded-md">
+                                  <span className="material-symbols-outlined text-[11px]">error</span>
+                                  Fallido
+                                </span>
+                                {item.motivo_error && (
+                                  <p className="text-[10px] text-red-600 font-semibold max-w-[180px] truncate" title={item.motivo_error}>
+                                    {item.motivo_error}
+                                  </p>
+                                )}
+                              </div>
                             ) : item.estado === "contesto" ? (
                               <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">
                                 Contestó
@@ -829,7 +869,8 @@ export default function CentroDeMandoComunicaciones() {
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">
-                                Enviado / Listo
+                                <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                                Enviado
                               </span>
                             )}
                           </td>
