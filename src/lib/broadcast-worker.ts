@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { enviarMensajeHumanoWhatsApp, getWhatsAppStatus } from "@/lib/whatsapp";
+import { enviarMensajeWhatsApp } from "@/lib/whatsapp";
 import { enviarEmailConfirmacion } from "@/lib/email";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -55,19 +55,12 @@ export async function startBackgroundBroadcastWorker() {
 
           try {
             if (item.canal === "whatsapp") {
-              // Validar conexión Baileys
-              const waStatus = getWhatsAppStatus();
-              if (waStatus.status !== "connected") {
-                motivoError = "Bot de WhatsApp desconectado";
-              } else {
-                const res = await enviarMensajeHumanoWhatsApp(
-                  item.destinatario_contacto,
-                  item.contenido_preview || "",
-                  { simularEscritura: true }
-                );
-                exito = res.success;
-                motivoError = res.error || null;
-              }
+              const res = await enviarMensajeWhatsApp(
+                item.destinatario_contacto,
+                item.contenido_preview || ""
+              );
+              exito = res.success;
+              motivoError = res.error || null;
             } else if (item.canal === "email") {
               // Verificar si es HTML
               const isHtml = (item.contenido_preview || "").trim().startsWith("<");

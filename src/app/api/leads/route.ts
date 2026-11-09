@@ -56,26 +56,25 @@ export async function POST(req: Request) {
     const scheduleName = lead.horario || "Por coordinar";
     const now = new Date();
 
-    // 1. WhatsApp de bienvenida
-    const waText = `¡Hola ${studentName}! 🎓 Bienvenido a Centro Educativo Crossover.\n\nHemos registrado tu pre-inscripción para *${courseName}* en horario *${scheduleName}*.\n\n📍 Sede: Av. Las Palmas #58, Herrera.\n\nTu plaza está apartada provisionalmente. Respóndenos para coordinar los detalles.`;
+    // 1. WhatsApp de bienvenida automático vía microservicio persistente
+    const waText = `¡Hola ${studentName}! 🎓 Bienvenido a Centro Educativo Crossover.\n\nHemos registrado tu pre-inscripción para *${courseName}* en horario *${scheduleName}*.\n\n📍 Sede: Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD.\n\nTu plaza está apartada provisionalmente. Respóndenos para coordinar los detalles.`;
     
-    // Intentar envío automático directo si Baileys está conectado
     let waEstado = "pendiente";
     let waError: string | null = null;
-    let waResponsable = "Bot / Baileys";
+    let waResponsable = "Bot Oficial WhatsApp";
 
     try {
-      const waStatus = getWhatsAppStatus();
-      if (waStatus.status === "connected") {
-        const resWa = await enviarMensajeWhatsApp(lead.telefono_tutor, waText);
-        if (resWa.success) {
-          waEstado = "enviado";
-        } else {
-          waError = resWa.error || null;
-        }
+      const resWa = await enviarMensajeWhatsApp(lead.telefono_tutor, waText);
+      if (resWa.success) {
+        waEstado = "enviado";
+      } else {
+        waEstado = "fallido";
+        waError = resWa.error || "No se pudo entregar el mensaje";
       }
     } catch (e: any) {
-      console.error("Error intentando envío Baileys:", e);
+      console.error("Error intentando envío WhatsApp:", e);
+      waEstado = "fallido";
+      waError = e.message || "Error de conexión con microservicio WhatsApp";
     }
 
     // 2. Tarea de llamada telefónica asignada a recepción para 24 horas después

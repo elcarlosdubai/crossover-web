@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 const smtpHost = process.env.SMTP_HOST || "premium239.web-hosting.com";
 const smtpPort = parseInt(process.env.SMTP_PORT || "465");
 const smtpUser = process.env.SMTP_USER || "info@crossoverrd.com";
-const smtpPass = process.env.SMTP_PASS || "";
+const smtpPass = process.env.SMTP_PASS || "Crossover*2026#Secure!";
 const smtpFrom = process.env.SMTP_FROM || `"Centro Educativo Crossover" <info@crossoverrd.com>`;
 
 export const transporter = nodemailer.createTransport({

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { enviarMensajeHumanoWhatsApp, getWhatsAppStatus } from "@/lib/whatsapp";
+import { enviarMensajeWhatsApp } from "@/lib/whatsapp";
 import { enviarEmailConfirmacion } from "@/lib/email";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -58,18 +58,6 @@ export async function POST(req: Request) {
       delayMax = 4000;
     }
 
-    if (canal === "whatsapp") {
-      const waStatus = getWhatsAppStatus();
-      if (waStatus.status !== "connected") {
-        return NextResponse.json(
-          {
-            error: "El bot de WhatsApp no está conectado. Escanea el código QR primero.",
-          },
-          { status: 400 }
-        );
-      }
-    }
-
     const resultados: Array<{
       contacto: string;
       nombre: string;
@@ -94,9 +82,7 @@ export async function POST(req: Request) {
 
       try {
         if (canal === "whatsapp") {
-          const res = await enviarMensajeHumanoWhatsApp(item.contacto, mensajePersonalizado, {
-            simularEscritura: true,
-          });
+          const res = await enviarMensajeWhatsApp(item.contacto, mensajePersonalizado);
 
           envioExitoso = res.success;
           errorDetalle = res.error || null;
