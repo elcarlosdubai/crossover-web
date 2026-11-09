@@ -39,7 +39,7 @@ const DEFAULT_TEMPLATES: PlantillaConfig[] = [
     canal: "whatsapp",
     nombre: "Pre-Inscripción Cursos Técnicos",
     categoria: "Admisiones",
-    cuerpo: `¡Hola {{nombre}}! 🎓 Bienvenido a Centro Educativo Crossover.\n\nHemos registrado exitosamente tu pre-inscripción para *{{curso}}* en horario *{{horario}}*.\n\n📍 *Sede Principal:* Av. Las Palmas #58, esquina Calle 4, Herrera (A 2 min de la Av. Luperón).\n\nPara garantizar tu plaza y asignarte fecha de inicio, por favor respóndenos confirmando tu disponibilidad. ¡Estamos para servirte!`
+    cuerpo: `¡Hola {{nombre}}! 🎓 Bienvenido a Centro Educativo Crossover.\n\nHemos registrado exitosamente tu pre-inscripción para *{{curso}}* en horario *{{horario}}*.\n\n📍 *Sede Principal:* Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD.\n\nPara garantizar tu plaza y asignarte fecha de inicio, por favor respóndenos confirmando tu disponibilidad. ¡Estamos para servirte!`
   },
   {
     id: "wa-colegio",

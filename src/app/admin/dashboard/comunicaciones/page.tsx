@@ -19,7 +19,7 @@ const PLANTILLAS_INICIALES: PlantillaConfig[] = [
     canal: "whatsapp",
     nombre: "Pre-Inscripción Cursos Técnicos",
     categoria: "Admisiones",
-    cuerpo: `¡Hola {{nombre}}! 🎓 Bienvenido a Centro Educativo Crossover.\n\nHemos registrado exitosamente tu pre-inscripción para *{{curso}}* en horario *{{horario}}*.\n\n📍 *Sede Principal:* Av. Las Palmas #58, esquina Calle 4, Herrera (A 2 min de la Av. Luperón).\n\nPara garantizar tu plaza y asignarte fecha de inicio, por favor respóndenos confirmando tu disponibilidad. ¡Estamos para servirte!`
+    cuerpo: `¡Hola {{nombre}}! 🎓 Bienvenido a Centro Educativo Crossover.\n\nHemos registrado exitosamente tu pre-inscripción para *{{curso}}* en horario *{{horario}}*.\n\n📍 *Sede Principal:* Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD.\n\nPara garantizar tu plaza y asignarte fecha de inicio, por favor respóndenos confirmando tu disponibilidad. ¡Estamos para servirte!`
   },
   {
     id: "wa-colegio",
@@ -1311,7 +1311,7 @@ export default function CentroDeMandoComunicaciones() {
                         </div>
                         <div className="flex justify-between py-0.5">
                           <span className="text-gray-500 font-medium text-[11px]">Sede:</span>
-                          <strong className="text-gray-900 text-[11px]">Herrera, Av. Las Palmas #58</strong>
+                          <strong className="text-gray-900 text-[11px]">Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD</strong>
                         </div>
                       </div>
 
@@ -1334,7 +1334,7 @@ export default function CentroDeMandoComunicaciones() {
                         <p className="font-semibold text-gray-600">
                           Centro Educativo Crossover • RNC 131-XXXXX-X
                         </p>
-                        <p>Av. Las Palmas #58, esquina Calle 4, Herrera • Santo Domingo Oeste</p>
+                        <p>Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD</p>
                         <p>Tel: (809) 922-0880 • admisiones@crossover.edu.do</p>
                       </div>
                     </div>

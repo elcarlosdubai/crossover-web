@@ -62,7 +62,7 @@ export function generarTextoPlanoInscripcion({
   horario: string;
 }) {
   return `Centro Educativo Crossover
-Capacitación Técnica & Formación Continua
+Trasciende con los mejores
 
 ¡Hola, ${nombre}!
 
@@ -71,16 +71,13 @@ Hemos recibido formalmente tu solicitud de pre-inscripción en nuestra plataform
 Detalles de tu Solicitud:
 - Programa / Curso: ${curso}
 - Horario Elegido: ${horario}
-- Sede Presencial: Herrera, Av. Las Palmas #58 (esquina Calle 4, a 2 min de la Luperón).
+- Sede Presencial: Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD.
 
-Un asesor de admisiones te contactará en breve vía llamada o WhatsApp para coordinar los detalles de formalización y entrega de credenciales estudiantiles.
-
-Si deseas confirmar tu cupo inmediatamente, puedes comunicarte por WhatsApp:
-https://wa.me/18099220880
+Un asesor de admisiones te contactará en breve vía llamada o correo institucional para coordinar los detalles de formalización y entrega de credenciales estudiantiles.
 
 --
 Centro Educativo Crossover
-Av. Las Palmas #58, esquina Calle 4, Herrera • Santo Domingo Oeste
+Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD
 Teléfono: (809) 922-0880 • info@crossoverrd.com • www.crossoverrd.com`;
 }
 
@@ -115,13 +112,13 @@ export function generarHtmlInscripcion({
                   style="display: block; margin: 0 auto 12px; max-width: 170px; height: auto; border: 0;"
                 />
                 <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
-                  Capacitación Técnica & Formación Continua
+                  Trasciende con los mejores
                 </p>
               </td>
             </tr>
 
             <tr>
-              <td style="padding: 36px 32px 24px;">
+              <td style="padding: 36px 32px 28px;">
                 <p style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: #111827;">
                   ¡Hola, ${nombre}! 👋
                 </p>
@@ -141,24 +138,14 @@ export function generarHtmlInscripcion({
                     </tr>
                     <tr>
                       <td style="padding: 6px 0; font-size: 13px; color: #6b7280; font-weight: 600;">Sede Presencial:</td>
-                      <td align="right" style="padding: 6px 0; font-size: 13px; color: #111827; font-weight: 800;">Herrera, Av. Las Palmas #58</td>
+                      <td align="right" style="padding: 6px 0; font-size: 13px; color: #111827; font-weight: 800;">Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD</td>
                     </tr>
                   </table>
                 </div>
 
-                <p style="margin: 0 0 28px; font-size: 13px; line-height: 1.6; color: #4b5563;">
-                  Un asesor de admisiones te contactará en breve vía llamada o WhatsApp para coordinar los detalles de formalización y entrega de credenciales.
+                <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #4b5563;">
+                  Un asesor de admisiones te contactará en breve vía llamada o correo institucional para coordinar los detalles de formalización y entrega de credenciales estudiantiles.
                 </p>
-
-                <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                  <tr>
-                    <td align="center">
-                      <a href="https://wa.me/18099220880?text=Hola,%20acabo%20de%20preinscribirme%20en%20${encodeURIComponent(curso)}" target="_blank" style="display: inline-block; background-color: #990000; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 800; padding: 14px 28px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
-                        Confirmar Cupo vía WhatsApp
-                      </a>
-                    </td>
-                  </tr>
-                </table>
               </td>
             </tr>
 
@@ -168,7 +155,7 @@ export function generarHtmlInscripcion({
                   Centro Educativo Crossover
                 </p>
                 <p style="margin: 0 0 6px; font-size: 11px; color: #9ca3af;">
-                  Av. Las Palmas #58, esquina Calle 4, Herrera • Santo Domingo Oeste
+                  Av. Las Palmas #58, Herrera, Santo Domingo Oeste, RD
                 </p>
                 <p style="margin: 0; font-size: 11px; color: #9ca3af;">
                   Teléfono: (809) 922-0880 • info@crossoverrd.com • www.crossoverrd.com
