@@ -63,6 +63,7 @@ export default function UsuariosAdmin() {
   const [editNombre, setEditNombre] = useState("");
   const [editTelefono, setEditTelefono] = useState("");
   const [editRol, setEditRol] = useState<RolUsuario>("recepcion");
+  const [editPassword, setEditPassword] = useState("");
   const [guardandoEdit, setGuardandoEdit] = useState(false);
 
   // Modal Cambiar Password
@@ -147,7 +148,14 @@ export default function UsuariosAdmin() {
     });
 
     if (res.success) {
+      if (editPassword.trim()) {
+        const passRes = await cambiarPasswordUsuario(usuarioEditando.id, editPassword.trim());
+        if (!passRes.success) {
+          alert("Datos guardados, pero hubo un error cambiando la contraseña: " + passRes.error);
+        }
+      }
       setUsuarioEditando(null);
+      setEditPassword("");
       cargarUsuarios();
     } else {
       alert("Error al actualizar: " + res.error);
@@ -657,6 +665,22 @@ export default function UsuariosAdmin() {
                   onChange={(e) => handlePhoneFormat(e.target.value, setEditTelefono)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-mono text-gray-900 focus:outline-none focus:border-[#990000] focus:bg-white"
                 />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Nueva Contraseña (Opcional)
+                </label>
+                <input
+                  type="text"
+                  value={editPassword}
+                  onChange={(e) => setEditPassword(e.target.value)}
+                  placeholder="Dejar en blanco para no modificar"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-mono text-gray-900 focus:outline-none focus:border-[#990000] focus:bg-white"
+                />
+                <p className="text-[10px] text-gray-400 mt-1">
+                  Solo llena este campo si deseas reasignarle una clave nueva ahora.
+                </p>
               </div>
 
               <div className="pt-2 flex items-center gap-2">

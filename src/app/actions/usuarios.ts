@@ -400,3 +400,79 @@ export async function eliminarUsuario(id: string) {
     return { success: false, error: err.message };
   }
 }
+
+/**
+ * Obtener perfil del usuario autenticado actual (para modal "Mi Perfil")
+ */
+export async function getMiPerfil(userId: string) {
+  try {
+    const { data: perfil, error } = await supabase
+      .from("perfiles_usuarios")
+      .select("*")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error || !perfil) {
+      return { success: false, error: "Perfil no encontrado" };
+    }
+
+    const { data: authData } = await supabase.auth.admin.getUserById(userId);
+    const meta = authData?.user?.user_metadata || {};
+    const username = meta.username || (perfil.email.includes("@crossover") ? perfil.email.split("@")[0] : null);
+    const emailNotificaciones = meta.email_notificaciones || (perfil.email.includes("@") && !perfil.email.endsWith(".local") ? perfil.email : null);
+
+    return {
+      success: true,
+      perfil: {
+        ...perfil,
+        username,
+        email_notificaciones: emailNotificaciones,
+        created_at: authData?.user?.created_at || perfil.created_at,
+        last_sign_in_at: authData?.user?.last_sign_in_at || null,
+      },
+    };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Actualizar perfil propio (Nombre, Teléfono, Correo de Notificaciones)
+ */
+export async function actualizarMiPerfil(
+  userId: string,
+  data: {
+    nombre: string;
+    telefono?: string;
+    emailNotificaciones?: string;
+  }
+) {
+  try {
+    const { error } = await supabase
+      .from("perfiles_usuarios")
+      .update({
+        nombre: data.nombre.trim(),
+        telefono: data.telefono?.trim() || null,
+      })
+      .eq("id", userId);
+
+    if (error) throw error;
+
+    const { data: authUser } = await supabase.auth.admin.getUserById(userId);
+    const currentMeta = authUser?.user?.user_metadata || {};
+
+    await supabase.auth.admin.updateUserById(userId, {
+      user_metadata: {
+        ...currentMeta,
+        nombre: data.nombre.trim(),
+        telefono: data.telefono?.trim() || null,
+        email_notificaciones: data.emailNotificaciones?.trim().toLowerCase() || currentMeta.email_notificaciones,
+      },
+    });
+
+    revalidatePath("/admin/dashboard");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Error al actualizar perfil." };
+  }
+}

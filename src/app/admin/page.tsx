@@ -82,7 +82,7 @@ export default function AdminLogin() {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-xs font-bold text-on-background-muted uppercase tracking-wider mb-2">Usuario o Correo</label>
+            <label className="block text-xs font-bold text-on-background-muted uppercase tracking-wider mb-2">Usuario</label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">person</span>
               <input 
@@ -91,7 +91,8 @@ export default function AdminLogin() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 className="w-full bg-surface border border-black/10 rounded-2xl py-4 pl-12 pr-4 text-on-background font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                placeholder="ej: carlos o admin@crossoverrd.com"
+                placeholder="Ingresa tu usuario"
+                autoComplete="username"
               />
             </div>
           </div>
@@ -99,7 +100,7 @@ export default function AdminLogin() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs font-bold text-on-background-muted uppercase tracking-wider">Contraseña</label>
-              <Link href="/admin/recuperar" className="text-xs font-bold text-primary hover:underline">
+              <Link href="/admin/recuperar" className="text-xs font-bold text-gray-400 hover:text-primary transition-colors">
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>

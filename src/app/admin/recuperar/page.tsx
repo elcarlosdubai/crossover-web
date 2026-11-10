@@ -180,7 +180,7 @@ function RecuperarPasswordContent() {
                 ¿Olvidaste tu Contraseña?
               </h2>
               <p className="text-xs text-gray-500 mt-1">
-                Ingresa tu usuario o correo para enviarte las instrucciones de recuperación.
+                Ingresa tu usuario institucional para enviarte el enlace de recuperación.
               </p>
             </div>
 
@@ -191,7 +191,7 @@ function RecuperarPasswordContent() {
                 </div>
                 <h3 className="text-base font-black text-gray-900">Revisa tu Bandeja de Entrada</h3>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Si tu usuario o correo está registrado en el sistema, hemos enviado un enlace de recuperación seguro. Revisa tu carpeta principal y de Spam.
+                  Si tu usuario está registrado en el sistema, hemos enviado un enlace de recuperación seguro a tu correo de contacto. Revisa tu carpeta principal y de Spam.
                 </p>
                 <div className="pt-2">
                   <Link
@@ -213,18 +213,18 @@ function RecuperarPasswordContent() {
 
                 <div>
                   <label className="block text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-1.5">
-                    Nombre de Usuario o Correo
+                    Usuario
                   </label>
                   <div className="relative">
                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
-                      badge
+                      person
                     </span>
                     <input
                       type="text"
                       required
                       value={identificador}
                       onChange={(e) => setIdentificador(e.target.value)}
-                      placeholder="ej: pedro o pedro@crossoverrd.com"
+                      placeholder="Ingresa tu usuario"
                       className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-gray-900 focus:outline-none focus:border-[#990000] focus:bg-white transition-all font-medium"
                     />
                   </div>
