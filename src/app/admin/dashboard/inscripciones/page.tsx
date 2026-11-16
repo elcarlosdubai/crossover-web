@@ -7,8 +7,11 @@ import {
   deletePreinscripcion,
   Preinscripcion
 } from "@/app/actions/inscripciones";
+import CuadernoInscripciones from "@/components/dashboard/CuadernoInscripciones";
+import { getTodayRD } from "@/lib/dateRD";
 
 export default function InscripcionesAdmin() {
+  const [vistaTab, setVistaTab] = useState<"pre" | "cuaderno" | "familias">("pre");
   const [leads, setLeads] = useState<Preinscripcion[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -115,7 +118,7 @@ export default function InscripcionesAdmin() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `preinscripciones_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `preinscripciones_${getTodayRD()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -161,6 +164,41 @@ export default function InscripcionesAdmin() {
         </div>
       </div>
 
+      {/* PESTAÑAS DE MÓDULO (Pre-Inscripciones / Cuaderno Oficial / Familias) */}
+      <div className="inline-flex bg-white p-1 rounded-2xl border border-gray-200/90 shadow-xs gap-1">
+        <button
+          type="button"
+          onClick={() => setVistaTab("pre")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            vistaTab === "pre" ? "bg-[#990000] text-white shadow-xs" : "text-gray-600 hover:bg-gray-100"
+          }`}
+        >
+          Pre-Inscripciones (Web / IG)
+        </button>
+        <button
+          type="button"
+          onClick={() => setVistaTab("cuaderno")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            vistaTab === "cuaderno" ? "bg-[#990000] text-white shadow-xs" : "text-gray-600 hover:bg-gray-100"
+          }`}
+        >
+          Cuaderno de Inscripciones
+        </button>
+        <button
+          type="button"
+          onClick={() => setVistaTab("familias")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            vistaTab === "familias" ? "bg-[#990000] text-white shadow-xs" : "text-gray-600 hover:bg-gray-100"
+          }`}
+        >
+          Familias & Hermanos
+        </button>
+      </div>
+
+      {vistaTab !== "pre" ? (
+        <CuadernoInscripciones mode={vistaTab === "cuaderno" ? "cuaderno" : "familias"} />
+      ) : (
+        <>
       {/* FILTROS Y BUSCADOR */}
       <div className="bg-white p-4 rounded-2xl border border-gray-200/90 shadow-xs flex flex-col md:flex-row gap-3">
         <div className="flex-1 relative">
@@ -458,6 +496,8 @@ export default function InscripcionesAdmin() {
           )}
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

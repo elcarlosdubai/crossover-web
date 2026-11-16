@@ -297,13 +297,16 @@ export async function enviarMensajeHumanoWhatsApp(
 }
 
 const BOT_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL || "https://sys.crossoverrd.com";
-const BOT_API_SECRET = process.env.WHATSAPP_API_SECRET || "Crossover*2026#SecureWaBot";
+const BOT_API_SECRET = process.env.WHATSAPP_API_SECRET || "";
 
 export async function enviarMensajeWhatsApp(
   telefono: string,
   mensaje: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
+    if (!BOT_API_SECRET) {
+      return { success: false, error: "WHATSAPP_API_SECRET no configurado." };
+    }
     const res = await fetch(`${BOT_SERVICE_URL}/send`, {
       method: "POST",
       headers: {

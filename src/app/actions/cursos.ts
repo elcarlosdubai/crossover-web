@@ -2,6 +2,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { requireRole } from '@/utils/supabase/server';
+
+const ROLES_CURSOS_LECTURA = ['admin', 'director', 'recepcion', 'caja', 'profesor'];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
@@ -9,6 +12,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function getCursos() {
   try {
+    await requireRole(ROLES_CURSOS_LECTURA);
     const { data: cursos, error } = await supabase
       .from('cursos')
       .select(`
@@ -31,6 +35,7 @@ export async function getCursos() {
 
 export async function getProfesores() {
   try {
+    await requireRole(ROLES_CURSOS_LECTURA);
     const { data, error } = await supabase
       .from('perfiles_usuarios')
       .select('id, nombre, email')
@@ -61,6 +66,7 @@ export async function createCurso(data: {
   criterios: { nombre: string; porcentaje: number; es_asistencia_automatica?: boolean }[];
 }) {
   try {
+    await requireRole(ROLES_CURSOS_LECTURA);
     // 1. Insert course
     const { data: curso, error: cursoErr } = await supabase
       .from('cursos')
@@ -125,6 +131,7 @@ export async function updateCurso(data: {
   criterios: { nombre: string; porcentaje: number; es_asistencia_automatica?: boolean }[];
 }) {
   try {
+    await requireRole(ROLES_CURSOS_LECTURA);
     // 1. Actualizar datos base del curso
     const updatePayload: any = {
       nombre: data.nombre,
@@ -187,6 +194,7 @@ export async function updateCurso(data: {
 
 export async function deleteCurso(cursoId: string) {
   try {
+    await requireRole(ROLES_CURSOS_LECTURA);
     const { error } = await supabase
       .from('cursos')
       .delete()
@@ -205,6 +213,7 @@ export async function deleteCurso(cursoId: string) {
 
 export async function toggleEstadoCurso(cursoId: string, activo: boolean) {
   try {
+    await requireRole(ROLES_CURSOS_LECTURA);
     const { error } = await supabase
       .from('cursos')
       .update({ activo })
@@ -223,6 +232,7 @@ export async function toggleEstadoCurso(cursoId: string, activo: boolean) {
 // Obtener expediente 360 de un curso: Alumnos matriculados, asistencias históricas y calificaciones
 export async function getDetalleCursoCompleto(cursoId: string) {
   try {
+    await requireRole(ROLES_CURSOS_LECTURA);
     // 1. Curso con profesor y criterios
     const { data: curso, error: cErr } = await supabase
       .from('cursos')

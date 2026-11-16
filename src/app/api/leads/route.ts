@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { generarHtmlInscripcion } from "@/lib/email";
-import { startBackgroundBroadcastWorker } from "@/lib/broadcast-worker";
 
 // Usamos las credenciales de entorno para instanciar el cliente con permisos de servidor
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -113,13 +112,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // Insertar en la cola de Centro de Mando
+    // Insertar en la cola de Centro de Mando (despachado por crossover-whatsapp-service 24/7)
     await supabase.from("registro_comunicaciones").insert(registrosDisparadores);
-
-    // Disparar worker en segundo plano ("fire-and-forget", no bloquea al usuario)
-    startBackgroundBroadcastWorker().catch((err) =>
-      console.error("[Queue Worker Trigger Error]:", err)
-    );
 
     // Responder de inmediato al alumno (200ms)
     return NextResponse.json(

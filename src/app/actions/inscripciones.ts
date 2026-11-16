@@ -2,6 +2,9 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
+import { requireRole } from "@/utils/supabase/server";
+
+const ROLES_INSCRIPCIONES = ["admin", "director", "recepcion", "caja"];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -26,6 +29,7 @@ export interface Preinscripcion {
 
 export async function getPreinscripciones(): Promise<Preinscripcion[]> {
   try {
+    await requireRole(ROLES_INSCRIPCIONES);
     const { data, error } = await supabase
       .from("preinscripciones")
       .select("*")
@@ -45,6 +49,7 @@ export async function getPreinscripciones(): Promise<Preinscripcion[]> {
 
 export async function updateEstadoPreinscripcion(id: string, nuevoEstado: string) {
   try {
+    await requireRole(ROLES_INSCRIPCIONES);
     const { error } = await supabase
       .from("preinscripciones")
       .update({ estado: nuevoEstado })
@@ -64,6 +69,7 @@ export async function updateEstadoPreinscripcion(id: string, nuevoEstado: string
 
 export async function deletePreinscripcion(id: string) {
   try {
+    await requireRole(ROLES_INSCRIPCIONES);
     const { error } = await supabase
       .from("preinscripciones")
       .delete()

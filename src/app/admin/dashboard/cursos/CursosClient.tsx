@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getCursos, getProfesores, createCurso, updateCurso, deleteCurso, toggleEstadoCurso, getDetalleCursoCompleto } from "@/app/actions/cursos";
+import { getTodayRD } from "@/lib/dateRD";
 
 const DIAS_OPCIONES = [
   { id: 1, label: "Lun", nombre: "Lunes" },
@@ -156,11 +157,11 @@ export default function CursosClient({
   };
 
   // Fechas del Ciclo (Inicio y Fin del curso)
-  const [fechaInicio, setFechaInicio] = useState(new Date().toISOString().split('T')[0]);
+  const [fechaInicio, setFechaInicio] = useState(getTodayRD());
   const [fechaFin, setFechaFin] = useState(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + 3);
-    return d.toISOString().split('T')[0];
+    return getTodayRD(d);
   });
 
   // Estructura Modular y Duración en Meses
@@ -1595,7 +1596,7 @@ export default function CursosClient({
                         } catch (_) {}
                         const d = new Date(fechaInicio || Date.now());
                         d.setMonth(d.getMonth() + val);
-                        setFechaFin(d.toISOString().split('T')[0]);
+                        setFechaFin(getTodayRD(d));
                         setNombresModulos(prev => {
                           const arr = [...prev];
                           return Array.from({ length: val }, (_, i) => arr[i] || (esModular ? `Módulo ${i + 1}` : `Mes ${i + 1}`));

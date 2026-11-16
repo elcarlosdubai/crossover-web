@@ -176,6 +176,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     admin: { label: "Super Admin", bg: "bg-red-50 text-[#990000] border-red-200/60" },
     director: { label: "Director Académico", bg: "bg-blue-50 text-blue-700 border-blue-200/60" },
     recepcion: { label: "Recepción & Caja", bg: "bg-emerald-50 text-emerald-700 border-emerald-200/60" },
+    caja: { label: "Caja & Cobros", bg: "bg-teal-50 text-teal-700 border-teal-200/60" },
     profesor: { label: "Cuerpo Docente", bg: "bg-purple-50 text-purple-700 border-purple-200/60" },
     editor: { label: "Editor de Noticias", bg: "bg-amber-50 text-amber-700 border-amber-200/60" }
   };
@@ -220,19 +221,19 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] flex relative selection:bg-[#990000] selection:text-white font-sans antialiased">
-      {/* Mobile Overlay */}
+      {/* Mobile & Tablet Portrait Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 lg:hidden"
           onClick={closeMenu}
         ></div>
       )}
 
       {/* SIDEBAR TIPO SAAS PREMIUM */}
       <aside
-        className={`fixed md:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200/80 flex flex-col z-50 transform transition-transform duration-200 ease-out ${
+        className={`fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200/80 flex flex-col z-50 transform transition-transform duration-200 ease-out ${
           isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-        } md:translate-x-0`}
+        } lg:translate-x-0`}
       >
         {/* HEADER LOGO */}
         <div className="h-16 px-5 border-b border-gray-100 flex items-center justify-between">
@@ -246,10 +247,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
               priority
             />
           </Link>
-          <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded-md bg-gray-100 text-[9px] font-black tracking-widest text-gray-500 uppercase border border-gray-200/60">
+          <span className="hidden lg:inline-flex items-center px-1.5 py-0.5 rounded-md bg-gray-100 text-[9px] font-black tracking-widest text-gray-500 uppercase border border-gray-200/60">
             PRO
           </span>
-          <button onClick={closeMenu} className="md:hidden text-gray-400 hover:text-gray-900 p-1">
+          <button onClick={closeMenu} className="lg:hidden text-gray-400 hover:text-gray-900 p-1">
             <span className="material-symbols-outlined text-xl">close</span>
           </button>
         </div>
@@ -264,26 +265,55 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
           )}
 
-          {/* SECCIÓN 1: GENERAL */}
-          {(userRole === "admin" || userRole === "director" || userRole === "profesor") && (
+          {/* SECCIÓN 1: GENERAL (TODOS LOS ROLES EXCEPTO CAJA/EDITOR) */}
+          {(userRole === "admin" || userRole === "director" || userRole === "profesor" || userRole === "recepcion") && (
             <div className="space-y-0.5">
               <p className="px-3 pb-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                General
+                {userRole === "admin" ? "Control Global" : "General"}
               </p>
-              {renderNavItem("/admin/dashboard", "Dashboard", "grid_view", true)}
+              {renderNavItem("/admin/dashboard", userRole === "admin" ? "Dashboard en Vivo" : "Dashboard", "grid_view", true)}
+              {userRole === "admin" &&
+                renderNavItem("/admin/dashboard/comunicaciones", "Centro de Mando & WA", "hub")}
             </div>
           )}
 
-          {/* SECCIÓN 2: CENTRO DE MANDO & ADMISIONES */}
-          {(userRole === "admin" || userRole === "director" || userRole === "recepcion") && (
+          {/* SECCIÓN 2: ADMISIONES & CAJA (ADMIN Y DIRECTOR) */}
+          {(userRole === "admin" || userRole === "director") && (
             <div className="space-y-0.5">
               <p className="px-3 pb-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                Comunicaciones & Caja
+                {userRole === "admin" ? "Admisiones & Caja" : "Admisiones"}
               </p>
-              {renderNavItem("/admin/dashboard/comunicaciones", "Centro de Mando", "hub")}
+              {renderNavItem(
+                "/admin/dashboard/inscripciones",
+                userRole === "admin" ? "Inscripciones & Familias" : "Pre-Inscripciones",
+                "how_to_reg"
+              )}
+              {userRole === "admin" &&
+                renderNavItem("/admin/dashboard/recibos", "Caja, POS & Cierre", "point_of_sale")}
+            </div>
+          )}
+
+          {/* SECCIÓN CAJA DEDICADA */}
+          {userRole === "caja" && (
+            <div className="space-y-0.5">
+              <p className="px-3 pb-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                Caja & Cobros
+              </p>
+              {renderNavItem("/admin/dashboard/recibos", "Caja, POS & Cierre", "point_of_sale")}
+              {renderNavItem("/admin/dashboard/inscripciones", "Cuaderno Inscripción", "how_to_reg")}
+              {renderNavItem("/admin/dashboard/estudiantes", "Estudiantes", "school")}
+            </div>
+          )}
+
+          {/* SECCIÓN RECEPCIÓN & CAJA: MESA OPERATIVA DIRECTA */}
+          {userRole === "recepcion" && (
+            <div className="space-y-0.5">
+              <p className="px-3 pb-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                Mesa Operativa
+              </p>
+              {renderNavItem("/admin/dashboard/ausencias", "Ausencias del Día", "warning", false, "Hoy")}
               {renderNavItem("/admin/dashboard/inscripciones", "Pre-Inscripciones", "how_to_reg")}
-              {(userRole === "admin" || userRole === "recepcion") &&
-                renderNavItem("/admin/dashboard/recibos", "Recibos & Caja", "receipt_long")}
+              {renderNavItem("/admin/dashboard/recibos", "Recibos & Caja", "receipt_long")}
             </div>
           )}
 
@@ -291,8 +321,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           {(userRole === "admin" || userRole === "director") && (
             <div className="space-y-0.5">
               <p className="px-3 pb-1 text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                Academia
+                {userRole === "admin" ? "Operación & Academia" : "Academia"}
               </p>
+              {userRole === "admin" &&
+                renderNavItem("/admin/dashboard/ausencias", "Ausencias del Día", "warning")}
               {renderNavItem("/admin/dashboard/cursos", "Cursos & Horarios", "auto_stories")}
               {renderNavItem("/admin/dashboard/estudiantes", "Estudiantes", "school")}
               {renderNavItem("/admin/dashboard/maestros", "Cuerpo Docente", "badge")}
@@ -396,8 +428,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
       {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#f8f9fa]">
-        {/* Header Móvil */}
-        <header className="h-14 bg-white border-b border-gray-200/80 px-4 flex justify-between items-center md:hidden shrink-0 z-30">
+        {/* Header Móvil / iPad Vertical */}
+        <header className="h-14 bg-white border-b border-gray-200/80 px-4 flex justify-between items-center lg:hidden shrink-0 z-30">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}

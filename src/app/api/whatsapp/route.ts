@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
+import { requireRole, authErrorResponse } from "@/utils/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 const BOT_SERVICE_URL = process.env.WHATSAPP_SERVICE_URL || "https://sys.crossoverrd.com";
-const BOT_API_SECRET = process.env.WHATSAPP_API_SECRET || "Crossover*2026#SecureWaBot";
+const BOT_API_SECRET = process.env.WHATSAPP_API_SECRET || "";
 
 export async function GET() {
   try {
+    await requireRole(["admin", "director", "recepcion", "caja"]);
+    if (!BOT_API_SECRET) {
+      return NextResponse.json({ error: "WHATSAPP_API_SECRET no configurado en el servidor." }, { status: 500 });
+    }
     const res = await fetch(`${BOT_SERVICE_URL}/status`, {
       headers: {
         "x-api-secret": BOT_API_SECRET,
@@ -22,6 +27,8 @@ export async function GET() {
     const data = await res.json();
     return NextResponse.json(data);
   } catch (err: any) {
+    const authRes = authErrorResponse(err);
+    if (authRes) return authRes;
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
@@ -30,6 +37,16 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { action } = body;
+
+    if (action === "connect" || action === "disconnect") {
+      await requireRole(["admin"]);
+    } else {
+      await requireRole(["admin", "director"]);
+    }
+
+    if (!BOT_API_SECRET) {
+      return NextResponse.json({ error: "WHATSAPP_API_SECRET no configurado en el servidor." }, { status: 500 });
+    }
 
     if (action === "connect") {
       const res = await fetch(`${BOT_SERVICE_URL}/connect`, {
@@ -68,6 +85,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ error: "Acción no reconocida" }, { status: 400 });
   } catch (err: any) {
+    const authRes = authErrorResponse(err);
+    if (authRes) return authRes;
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

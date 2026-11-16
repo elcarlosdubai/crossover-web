@@ -2,6 +2,9 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
+import { requireRole } from "@/utils/supabase/server";
+
+const ROLES_COMUNICACIONES = ["admin", "director", "recepcion", "caja"];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -79,6 +82,7 @@ const DEFAULT_TEMPLATES: PlantillaConfig[] = [
 
 export async function getComunicaciones(): Promise<ComunicacionRecord[]> {
   try {
+    await requireRole(ROLES_COMUNICACIONES);
     const { data, error } = await supabase
       .from("registro_comunicaciones")
       .select("*")
@@ -109,6 +113,7 @@ export async function actualizarAlarmaCompleta(
   }
 ) {
   try {
+    await requireRole(ROLES_COMUNICACIONES);
     const { error } = await supabase
       .from("registro_comunicaciones")
       .update(payload)
@@ -125,6 +130,7 @@ export async function actualizarAlarmaCompleta(
 
 export async function registrarComunicacion(record: Omit<ComunicacionRecord, "id">) {
   try {
+    await requireRole(ROLES_COMUNICACIONES);
     const { data, error } = await supabase
       .from("registro_comunicaciones")
       .insert([record])
@@ -142,6 +148,7 @@ export async function registrarComunicacion(record: Omit<ComunicacionRecord, "id
 
 export async function deleteComunicacion(id: string) {
   try {
+    await requireRole(ROLES_COMUNICACIONES);
     const { error } = await supabase
       .from("registro_comunicaciones")
       .delete()
@@ -160,6 +167,7 @@ export async function deleteComunicacion(id: string) {
 
 export async function getPlantillasConfig(): Promise<PlantillaConfig[]> {
   try {
+    await requireRole(ROLES_COMUNICACIONES);
     const { data, error } = await supabase
       .from("registro_comunicaciones")
       .select("*")
@@ -203,6 +211,7 @@ export async function getPlantillasConfig(): Promise<PlantillaConfig[]> {
 
 export async function guardarPlantillaConfig(plantilla: PlantillaConfig) {
   try {
+    await requireRole(ROLES_COMUNICACIONES);
     const { data: existing } = await supabase
       .from("registro_comunicaciones")
       .select("id")

@@ -2,6 +2,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { getTodayRD } from '@/lib/dateRD';
+import { requireRole } from '@/utils/supabase/server';
+
+const ROLES_ASISTENCIA = ['admin', 'director', 'recepcion', 'profesor'];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
@@ -9,7 +13,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function getAuditoriaAsistenciasDirector(fecha?: string) {
   try {
-    const targetDate = fecha || new Date().toISOString().split('T')[0];
+    await requireRole(ROLES_ASISTENCIA);
+    const targetDate = fecha || getTodayRD();
 
     // 1. Fetch all active courses
     const { data: cursos, error: cErr } = await supabase
@@ -120,6 +125,7 @@ export async function calcularFechasClaseMes(diasSemana: number[], anio: number,
  */
 export async function getSabanaAsistenciaCurso(cursoId: string, anio: number, mes: number) {
   try {
+    await requireRole(ROLES_ASISTENCIA);
     // 1. Obtener detalles del curso
     const { data: curso, error: cErr } = await supabase
       .from('cursos')
@@ -245,6 +251,7 @@ export async function guardarSabanaAsistencia(
   registros: Array<{ estudiante_id: string; fecha: string; estado: string; periodo?: number; observaciones?: string }>
 ) {
   try {
+    await requireRole(ROLES_ASISTENCIA);
     if (!registros || registros.length === 0) return { success: true };
 
     const payload = registros.map(r => ({
@@ -278,6 +285,7 @@ export async function guardarSabanaAsistencia(
  */
 export async function toggleSuspensionClase(cursoId: string, fecha: string, motivo?: string) {
   try {
+    await requireRole(ROLES_ASISTENCIA);
     // Verificar si ya existe
     const { data: existente } = await supabase
       .from('clases_suspendidas')
@@ -314,6 +322,7 @@ export async function justificarInasistenciaEstudiante(
   observaciones: string
 ) {
   try {
+    await requireRole(ROLES_ASISTENCIA);
     const { error } = await supabase
       .from('asistencias')
       .update({

@@ -2,6 +2,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { requireRole } from '@/utils/supabase/server';
+
+const ROLES_MAESTROS = ['admin', 'director'];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
@@ -9,6 +12,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function getMaestros() {
   try {
+    await requireRole(ROLES_MAESTROS);
     const { data: maestros, error } = await supabase
       .from('perfiles_usuarios')
       .select(`
@@ -46,6 +50,7 @@ export async function createMaestro(data: {
   password?: string;
 }) {
   try {
+    await requireRole(ROLES_MAESTROS);
     const password = data.password || "123456";
 
     const { data: authUser, error: authErr } = await supabase.auth.admin.createUser({
@@ -90,6 +95,7 @@ export async function createMaestro(data: {
 
 export async function deleteMaestro(id: string) {
   try {
+    await requireRole(ROLES_MAESTROS);
     await supabase.from('perfiles_usuarios').delete().eq('id', id);
     await supabase.auth.admin.deleteUser(id);
     revalidatePath('/admin/dashboard/maestros');
@@ -102,6 +108,7 @@ export async function deleteMaestro(id: string) {
 
 export async function toggleEstadoMaestro(id: string, activo: boolean) {
   try {
+    await requireRole(ROLES_MAESTROS);
     const { error } = await supabase
       .from('perfiles_usuarios')
       .update({ activo })

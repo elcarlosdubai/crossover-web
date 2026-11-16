@@ -555,6 +555,27 @@ export default function EstudianteDetalleClient({
             </div>
           )}
 
+          {(expediente.observacionesDocentes || []).length > 0 && (
+            <div className="bg-amber-50/70 rounded-2xl border border-amber-200 p-4 space-y-2.5">
+              <h3 className="text-[11px] font-black text-amber-800 uppercase tracking-wider">
+                Observaciones Docentes ({expediente.observacionesDocentes.length})
+              </h3>
+              <div className="space-y-2">
+                {expediente.observacionesDocentes.map((obs: any) => (
+                  <div key={obs.id} className="bg-white rounded-xl border border-amber-100 px-3.5 py-2.5 text-xs">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="font-bold text-gray-900">{obs.profesor_nombre || "Docente"}</span>
+                      <span className="text-[10px] font-medium text-gray-400">
+                        {obs.created_at ? new Date(obs.created_at).toLocaleDateString("es-DO") : ""}
+                      </span>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">{obs.observacion || obs.texto}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Tarjeta Acordeón Principal del Nivel / Módulo Actual */}
           <div className="bg-white rounded-2xl border border-gray-200/90 shadow-2xs overflow-hidden transition-all">
             {/* Barra Compacta del Nivel (Elegante, delgada y limpia) */}

@@ -1,6 +1,6 @@
 "use server";
 import { createClient } from '@supabase/supabase-js';
-import { checkAuth } from '@/utils/supabase/server';
+import { requireRole } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
@@ -9,7 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function createSlide(data: any) {
   try {
-    await checkAuth(); // Proteger la ruta
+    await requireRole(['admin', 'editor']); // Proteger la ruta
     const { error } = await supabase.from('noticias').insert([{
       titulo: data.title,
       slug: data.subtitle,
@@ -28,7 +28,7 @@ export async function createSlide(data: any) {
 
 export async function updateSlide(id: number, data: any) {
   try {
-    await checkAuth(); // Proteger la ruta
+    await requireRole(['admin', 'editor']); // Proteger la ruta
     const { error } = await supabase.from('noticias').update({
       titulo: data.title,
       slug: data.subtitle,
@@ -46,7 +46,7 @@ export async function updateSlide(id: number, data: any) {
 
 export async function deleteSlide(id: number) {
   try {
-    await checkAuth(); // Proteger la ruta
+    await requireRole(['admin', 'editor']); // Proteger la ruta
     const { error } = await supabase.from('noticias').delete().eq('id', id);
     if (error) return { success: false, error: error.message };
     revalidatePath('/admin/dashboard/portada');

@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { getAuditoriaAsistenciasDirector } from "@/app/actions/asistencia";
+import { getTodayRD } from "@/lib/dateRD";
 
 export default function AsistenciaDirectorPage() {
   const [data, setData] = useState<any>(null);
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [fecha, setFecha] = useState(getTodayRD());
   const [loading, setLoading] = useState(true);
   const [selectedCurso, setSelectedCurso] = useState<any>(null);
 

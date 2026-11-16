@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireRole, authErrorResponse } from '@/utils/supabase/server';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    await requireRole(['admin']);
     // 1. Fetch total count from WordPress
     const wpRes = await fetch('https://crossoverrd.com/wp-json/wp/v2/posts?per_page=1', {
       headers: { 'User-Agent': 'Mozilla/5.0 CrossoverMigration/1.0' },
@@ -40,6 +42,8 @@ export async function GET() {
       ultimasMigradas: ultimasMigradas || [],
     });
   } catch (error: any) {
+    const authRes = authErrorResponse(error);
+    if (authRes) return authRes;
     console.error('Error fetching migration status:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

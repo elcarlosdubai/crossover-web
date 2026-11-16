@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from '@supabase/supabase-js';
-import { checkAuth } from '@/utils/supabase/server';
+import { requireRole } from '@/utils/supabase/server';
 
 // We use the service_role key to bypass RLS for admin tasks
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
@@ -9,6 +9,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function getConfiguracion() {
+  await requireRole(['admin']);
   const { data, error } = await supabase.from('configuracion').select('*').eq('id', 1).single();
   if (error) {
     console.error("Error fetching config:", error);
@@ -19,7 +20,7 @@ export async function getConfiguracion() {
 
 export async function updateConfiguracion(formData: any) {
   try {
-    await checkAuth(); // Proteger la ruta de actualizacion
+    await requireRole(['admin']);
     const { error } = await supabase
       .from('configuracion')
       .update({

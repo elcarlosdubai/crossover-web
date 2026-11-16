@@ -4,12 +4,13 @@ import { createClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import crypto from "crypto";
 import { generarHtmlBienvenidaUsuario, generarHtmlRecuperarPassword } from "@/lib/email";
+import { checkAuth, requireRole } from "@/utils/supabase/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://dummy.supabase.co";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "dummy";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export type RolUsuario = "admin" | "director" | "recepcion" | "profesor" | "editor";
+export type RolUsuario = "admin" | "director" | "recepcion" | "caja" | "profesor" | "editor";
 
 export interface UsuarioPerfil {
   id: string;
@@ -29,6 +30,7 @@ export interface UsuarioPerfil {
  */
 export async function getUsuarios(): Promise<UsuarioPerfil[]> {
   try {
+    await requireRole(["admin"]);
     const { data: perfiles, error } = await supabase
       .from("perfiles_usuarios")
       .select("*")
@@ -78,6 +80,7 @@ export async function crearUsuario(data: {
   password?: string;
 }) {
   try {
+    await requireRole(["admin"]);
     const cleanNombres = data.nombres.trim();
     const cleanApellidos = (data.apellidos || "").trim();
     const nombreCompleto = `${cleanNombres} ${cleanApellidos}`.trim();
@@ -304,6 +307,7 @@ export async function restablecerPasswordConToken(token: string, nuevaPassword: 
  */
 export async function cambiarPasswordUsuario(id: string, nuevaPassword: string) {
   try {
+    await requireRole(["admin"]);
     if (!nuevaPassword || nuevaPassword.length < 6) {
       return { success: false, error: "La contraseña debe tener mínimo 6 caracteres." };
     }
@@ -334,6 +338,7 @@ export async function actualizarUsuario(
   }
 ) {
   try {
+    await requireRole(["admin"]);
     const { error } = await supabase
       .from("perfiles_usuarios")
       .update({
@@ -367,6 +372,7 @@ export async function actualizarUsuario(
  */
 export async function toggleEstadoUsuario(id: string, activo: boolean) {
   try {
+    await requireRole(["admin"]);
     const { error } = await supabase
       .from("perfiles_usuarios")
       .update({ activo })
@@ -392,6 +398,7 @@ export async function toggleEstadoUsuario(id: string, activo: boolean) {
  */
 export async function eliminarUsuario(id: string) {
   try {
+    await requireRole(["admin"]);
     await supabase.from("perfiles_usuarios").delete().eq("id", id);
     await supabase.auth.admin.deleteUser(id);
     revalidatePath("/admin/dashboard/usuarios");
@@ -406,6 +413,10 @@ export async function eliminarUsuario(id: string) {
  */
 export async function getMiPerfil(userId: string) {
   try {
+    const user = await checkAuth();
+    if (user.id !== userId) {
+      return { success: false, error: "No autorizado para ver este perfil." };
+    }
     const { data: perfil, error } = await supabase
       .from("perfiles_usuarios")
       .select("*")
@@ -448,6 +459,10 @@ export async function actualizarMiPerfil(
   }
 ) {
   try {
+    const user = await checkAuth();
+    if (user.id !== userId) {
+      return { success: false, error: "No autorizado para modificar este perfil." };
+    }
     const { error } = await supabase
       .from("perfiles_usuarios")
       .update({

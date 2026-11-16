@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { startBackgroundBroadcastWorker } from "@/lib/broadcast-worker";
+import { requireRole, authErrorResponse } from "@/utils/supabase/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -15,6 +15,7 @@ export interface ContactoEnqueue {
 
 export async function POST(req: Request) {
   try {
+    await requireRole(["admin", "director", "recepcion"]);
     const body = await req.json();
     const { canal, asunto, plantillaMensaje, isHtml, contactos } = body;
 
@@ -56,8 +57,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Despertar el worker de fondo en el servidor para que empiece a gotear
-    startBackgroundBroadcastWorker();
+    // El worker 24/7 en crossover-whatsapp-service recoge la cola en <= 5s sin duplicados
 
     return NextResponse.json({
       success: true,
@@ -65,6 +65,8 @@ export async function POST(req: Request) {
       mensaje: "Campaña encolada con éxito en el servidor.",
     });
   } catch (err: any) {
+    const authRes = authErrorResponse(err);
+    if (authRes) return authRes;
     console.error("Error en /api/broadcast/enqueue:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

@@ -9,6 +9,7 @@ import {
 } from "@/app/actions/docente";
 
 import { useSearchParams } from "next/navigation";
+import { getTodayRD } from "@/lib/dateRD";
 
 export default function CalificacionesDocentePage() {
   const searchParams = useSearchParams();
@@ -18,7 +19,7 @@ export default function CalificacionesDocentePage() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [cursos, setCursos] = useState<any[]>([]);
   const [selectedCursoId, setSelectedCursoId] = useState<string>("");
-  const [fecha, setFecha] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [fecha, setFecha] = useState<string>(getTodayRD());
   const [detalle, setDetalle] = useState<any>(null);
   const [tab, setTab] = useState<"asistencia" | "calificaciones">(initialTab);
   const [loading, setLoading] = useState(true);

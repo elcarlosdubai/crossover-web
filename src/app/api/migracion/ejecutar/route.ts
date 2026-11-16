@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { v2 as cloudinary } from 'cloudinary';
+import { requireRole, authErrorResponse } from '@/utils/supabase/server';
 
 // Configure Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -68,6 +69,7 @@ async function uploadBatchToCloudinary(urls: string[], concurrency = 4): Promise
 
 export async function POST(req: Request) {
   try {
+    await requireRole(['admin']);
     const { batchSize = 1, page = 1 } = await req.json();
 
     // 1. Fetch posts from WordPress API
@@ -211,6 +213,8 @@ export async function POST(req: Request) {
     });
 
   } catch (error: any) {
+    const authRes = authErrorResponse(error);
+    if (authRes) return authRes;
     console.error('Error executing migration batch:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

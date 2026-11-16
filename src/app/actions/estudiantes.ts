@@ -2,6 +2,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { getTodayRD } from '@/lib/dateRD';
+import { requireRole } from '@/utils/supabase/server';
+
+const ROLES_ESTUDIANTES = ['admin', 'director', 'recepcion', 'caja', 'profesor'];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
@@ -9,6 +13,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function getEstudiantesDirector(cursoId?: string) {
   try {
+    await requireRole(ROLES_ESTUDIANTES);
     let query = supabase
       .from('estudiantes')
       .select(`
@@ -74,6 +79,7 @@ export async function createEstudiante(data: {
   email?: string;
 }) {
   try {
+    await requireRole(ROLES_ESTUDIANTES);
     const year = new Date().getFullYear();
     const randomSeq = Math.floor(1000 + Math.random() * 9000);
     const matricula = `CR-${year}-${randomSeq}`;
@@ -111,6 +117,8 @@ export async function createEstudiante(data: {
 
 export async function seedEstudiantesDemoSiVacio() {
   try {
+    await requireRole(['admin', 'director']);
+    await requireRole(ROLES_ESTUDIANTES);
     const { data: existing } = await supabase.from('estudiantes').select('id').limit(1);
     if (existing && existing.length > 0) return { success: true, message: "Ya existen estudiantes" };
 
@@ -145,7 +153,7 @@ export async function seedEstudiantesDemoSiVacio() {
     }
 
     // Insertar registros de asistencia inicial para el demo
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayRD();
     const { data: todosEstudiantes } = await supabase.from('estudiantes').select('id');
     if (todosEstudiantes && todosEstudiantes.length > 0) {
       const asistenciasDemo = todosEstudiantes.map((e, idx) => ({
@@ -169,6 +177,7 @@ export async function seedEstudiantesDemoSiVacio() {
 
 export async function matricularEstudiantesDemoEnCurso(cursoId: string) {
   try {
+    await requireRole(ROLES_ESTUDIANTES);
     const year = new Date().getFullYear();
     const nombresAlumnos = [
       { nombres: "Mateo", apellidos: "Almonte Gómez", tutor: "Rosaura Gómez", tel: "809-555-1001" },
@@ -221,6 +230,7 @@ export async function updateEstudiante(id: string, data: {
   estado?: string;
 }) {
   try {
+    await requireRole(ROLES_ESTUDIANTES);
     const { data: updated, error } = await supabase
       .from('estudiantes')
       .update({
@@ -252,6 +262,7 @@ export async function updateEstudiante(id: string, data: {
 
 export async function deleteEstudiante(id: string) {
   try {
+    await requireRole(ROLES_ESTUDIANTES);
     const { error } = await supabase
       .from('estudiantes')
       .delete()
@@ -270,6 +281,7 @@ export async function deleteEstudiante(id: string) {
 
 export async function getExpedienteCompletoEstudiante(estudianteId: string) {
   try {
+    await requireRole(ROLES_ESTUDIANTES);
     const { data: estudiante, error: eErr } = await supabase
       .from('estudiantes')
       .select(`
@@ -297,11 +309,28 @@ export async function getExpedienteCompletoEstudiante(estudianteId: string) {
       .eq('estudiante_id', estudianteId)
       .order('fecha', { ascending: false });
 
-    // Calificaciones por criterio
+    // Calificaciones por criterio (ordenadas por fecha para aislar el último periodo evaluado)
     const { data: calificaciones } = await supabase
       .from('calificaciones')
       .select('*')
-      .eq('estudiante_id', estudianteId);
+      .eq('estudiante_id', estudianteId)
+      .order('created_at', { ascending: false });
+
+    const periodoActivo = (calificaciones || []).find((c: any) => c.periodo)?.periodo || null;
+    const calificacionesPeriodo = periodoActivo
+      ? (calificaciones || []).filter((c: any) => c.periodo === periodoActivo)
+      : (calificaciones || []);
+
+    // Observaciones docentes registradas desde el portal del profesor
+    let observacionesDocentes: any[] = [];
+    try {
+      const { data: obs } = await supabase
+        .from('observaciones_docentes')
+        .select('*')
+        .eq('estudiante_id', estudianteId)
+        .order('created_at', { ascending: false });
+      observacionesDocentes = obs || [];
+    } catch (_) {}
 
     // Calcular estadísticas blindadas (Excusados no restan puntos)
     const presentes = (asistencias || []).filter(a => a.estado === 'PRESENTE').length;
@@ -315,7 +344,7 @@ export async function getExpedienteCompletoEstudiante(estudianteId: string) {
     // Calcular notas según criterios del Director: suma directa de puntos obtenidos (0 .. maxPts)
     let notaPonderada = 0;
     const criteriosConNotas = (estudiante.curso?.criterios || []).map((crit: any) => {
-      const match = (calificaciones || []).find(c => c.criterio_id === crit.id);
+      const match = calificacionesPeriodo.find(c => c.criterio_id === crit.id);
       let val = match ? Number(match.nota !== undefined && match.nota !== null ? match.nota : match.calificacion) : null;
       const maxPts = Number(crit.porcentaje) || 20;
 
@@ -356,6 +385,7 @@ export async function getExpedienteCompletoEstudiante(estudianteId: string) {
         notaPonderada: Math.round(notaPonderada * 10) / 10
       },
       criteriosConNotas,
+      observacionesDocentes,
       historialAsistencias: asistencias || [],
       historialAcademico
     };
@@ -373,6 +403,7 @@ export async function promoverEstudiantes(
   concluirCursoOrigen: boolean = false
 ) {
   try {
+    await requireRole(ROLES_ESTUDIANTES);
     if (!estudianteIds || estudianteIds.length === 0) {
       return { success: false, error: "No se seleccionaron estudiantes para promover." };
     }

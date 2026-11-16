@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { getAusenciasTriage, actualizarEstadoAusencia } from "@/app/actions/recepcion";
+import { getTodayRD } from "@/lib/dateRD";
 
 export default function AusenciasRecepcionPage() {
   const [ausencias, setAusencias] = useState<any[]>([]);
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [fecha, setFecha] = useState(getTodayRD());
   const [loading, setLoading] = useState(true);
   const [procesandoId, setProcesandoId] = useState<string | null>(null);
 

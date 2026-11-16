@@ -13,6 +13,7 @@ import {
   PlantillaConfig,
 } from "@/app/actions/comunicaciones";
 import BroadcastDripAdmin from "@/app/admin/dashboard/broadcast/page";
+import { getDateTimeLocalRD } from "@/lib/dateRD";
 
 const PLANTILLAS_INICIALES: PlantillaConfig[] = [
   {
@@ -59,6 +60,8 @@ const PLANTILLAS_INICIALES: PlantillaConfig[] = [
 ];
 
 export default function CentroDeMandoComunicaciones() {
+  const [userRole, setUserRole] = useState<string>("admin");
+  const isDirectorReadOnly = userRole === "director";
   const [alarmas, setAlarmas] = useState<ComunicacionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -102,7 +105,7 @@ export default function CentroDeMandoComunicaciones() {
   const [nuevoContacto, setNuevoContacto] = useState("");
   const [nuevoCanal, setNuevoCanal] = useState<"whatsapp" | "email" | "llamada">("whatsapp");
   const [nuevoTipo, setNuevoTipo] = useState<"inscripcion" | "seguimiento" | "pago" | "recordatorio">("seguimiento");
-  const [nuevaFecha, setNuevaFecha] = useState(() => new Date().toISOString().slice(0, 16));
+  const [nuevaFecha, setNuevaFecha] = useState(() => getDateTimeLocalRD());
   const [nuevoDetalle, setNuevoDetalle] = useState("");
   const [creando, setCreando] = useState(false);
 
@@ -258,6 +261,19 @@ export default function CentroDeMandoComunicaciones() {
   }, []);
 
   // Sondeo periódico cuando el modal de QR está abierto
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      const { data: prof } = await supabase
+        .from("perfiles_usuarios")
+        .select("rol")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (prof?.rol) setUserRole(prof.rol);
+    });
+  }, []);
+
   useEffect(() => {
     if (!waModalOpen) return;
     consultarEstadoWhatsApp();
@@ -506,10 +522,16 @@ export default function CentroDeMandoComunicaciones() {
         </div>
 
         <div className="relative z-10 flex items-center gap-2.5 shrink-0 flex-wrap">
+          {isDirectorReadOnly && (
+            <span className="px-3 py-1.5 rounded-xl text-[11px] font-bold bg-blue-500/20 border border-blue-400/30 text-blue-200">
+              Modo Solo Lectura
+            </span>
+          )}
+
           {/* BOTÓN CONEXIÓN WHATSAPP BAILEYS (Estilo 2026 con logo SVG oficial) */}
           <button
-            onClick={() => setWaModalOpen(true)}
-            className={`group px-3.5 py-2 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 flex items-center gap-2 cursor-pointer shadow-sm active:scale-95 ${
+            onClick={() => { if (!isDirectorReadOnly) setWaModalOpen(true); }}
+            className={`group px-3.5 py-2 rounded-xl text-xs font-semibold border backdrop-blur-md transition-all duration-200 flex items-center gap-2 ${isDirectorReadOnly ? "cursor-default" : "cursor-pointer active:scale-95"} shadow-sm ${
               waStatus.status === "connected"
                 ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 shadow-emerald-950/40"
                 : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white hover:border-white/20"
@@ -549,16 +571,18 @@ export default function CentroDeMandoComunicaciones() {
             <span className="material-symbols-outlined text-[18px] block">sync</span>
           </button>
 
-          {/* BOTÓN NUEVA TAREA (Icono moderno add_task con gradiente y glow) */}
-          <button
-            onClick={() => setModalOpen(true)}
-            className="group relative overflow-hidden bg-gradient-to-r from-[#990000] to-[#b30000] hover:from-[#a60000] hover:to-[#c40000] text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-950/40 hover:shadow-red-900/60 transition-all duration-200 flex items-center gap-2 cursor-pointer active:scale-95"
-          >
-            <span className="material-symbols-outlined text-[17px] transition-transform group-hover:rotate-90 duration-300">
-              add_task
-            </span>
-            <span>Nueva Tarea</span>
-          </button>
+          {/* BOTÓN NUEVA TAREA (Solo Admin/Recepción) */}
+          {!isDirectorReadOnly && (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="group relative overflow-hidden bg-gradient-to-r from-[#990000] to-[#b30000] hover:from-[#a60000] hover:to-[#c40000] text-white px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-red-950/40 hover:shadow-red-900/60 transition-all duration-200 flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <span className="material-symbols-outlined text-[17px] transition-transform group-hover:rotate-90 duration-300">
+                add_task
+              </span>
+              <span>Nueva Tarea</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -623,34 +647,38 @@ export default function CentroDeMandoComunicaciones() {
           </span>
         </button>
 
-        <button
-          onClick={() => setEstadoTab("broadcast")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-            estadoTab === "broadcast"
-              ? "bg-[#990000] text-white shadow-xs"
-              : "text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          <span className="material-symbols-outlined text-base">campaign</span>
-          <span>Avisos Masivos</span>
-        </button>
+        {!isDirectorReadOnly && (
+          <>
+            <button
+              onClick={() => setEstadoTab("broadcast")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                estadoTab === "broadcast"
+                  ? "bg-[#990000] text-white shadow-xs"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">campaign</span>
+              <span>Avisos Masivos</span>
+            </button>
 
-        <div className="h-4 w-px bg-gray-200 mx-1"></div>
+            <div className="h-4 w-px bg-gray-200 mx-1"></div>
 
-        <button
-          onClick={() => setEstadoTab("templates")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-            estadoTab === "templates"
-              ? "bg-gray-900 text-white shadow-xs"
-              : "text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          <span className="material-symbols-outlined text-base">palette</span>
-          <span>Plantillas</span>
-          <span className="ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-black bg-blue-100 text-blue-800">
-            {templates.length}
-          </span>
-        </button>
+            <button
+              onClick={() => setEstadoTab("templates")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                estadoTab === "templates"
+                  ? "bg-gray-900 text-white shadow-xs"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">palette</span>
+              <span>Plantillas</span>
+              <span className="ml-1 px-1.5 py-0.5 rounded-md text-[10px] font-black bg-blue-100 text-blue-800">
+                {templates.length}
+              </span>
+            </button>
+          </>
+        )}
       </div>
 
       {/* ================= VISTA 1, 2, 3: TABLA DE ALARMAS ================= */}
@@ -877,7 +905,10 @@ export default function CentroDeMandoComunicaciones() {
 
                           {/* ACCIONES */}
                           <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                            <div className="flex items-center justify-end gap-1.5">
+                            {isDirectorReadOnly ? (
+                              <span className="text-[11px] font-semibold text-gray-400">Solo lectura</span>
+                            ) : (
+                              <div className="flex items-center justify-end gap-1.5">
                               {/* LLAMADA */}
                               {item.canal === "llamada" && (
                                 <button
@@ -885,7 +916,7 @@ export default function CentroDeMandoComunicaciones() {
                                     setGestionarItem(item);
                                     setResultadoLlamada("contesto");
                                     setNotaGestion(item.contenido_preview || "");
-                                    setFechaReagendada(new Date().toISOString().slice(0, 16));
+                                    setFechaReagendada(getDateTimeLocalRD());
                                   }}
                                   className="px-2.5 py-1 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors inline-flex items-center gap-1 cursor-pointer"
                                   title="Gestionar llamada"
@@ -931,6 +962,7 @@ export default function CentroDeMandoComunicaciones() {
                                 <span className="material-symbols-outlined text-base">delete</span>
                               </button>
                             </div>
+                            )}
                           </td>
                         </tr>
                       );

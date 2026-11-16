@@ -14,8 +14,22 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "Crossover | Colegio e Instituto de Élite",
-  description: "La Educación del Mañana, Hoy. Crossover es la intersección definitiva entre la formación escolar de excelencia y la vanguardia técnica.",
+  metadataBase: new URL("https://www.crossoverrd.com"),
+  title: {
+    default: "Centro Educativo Crossover | Educación Escolar y Formación Técnica",
+    template: "%s | Centro Educativo Crossover",
+  },
+  description:
+    "Centro Educativo Crossover es una institución de educación escolar y formación técnica ubicada en Santo Domingo, República Dominicana. Niveles Inicial, Primaria y Secundaria, Inglés, Informática, Excel, Contabilidad, Diseño Gráfico y cursos INFOTEP.",
+  openGraph: {
+    title: "Centro Educativo Crossover",
+    description:
+      "Institución de educación escolar y formación técnica en Santo Domingo, República Dominicana.",
+    url: "https://www.crossoverrd.com",
+    siteName: "Centro Educativo Crossover",
+    locale: "es_DO",
+    type: "website",
+  },
 };
 
 import Navbar from "../components/Navbar";

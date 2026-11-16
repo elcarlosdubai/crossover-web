@@ -2,7 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { v2 as cloudinary } from 'cloudinary';
-import { checkAuth } from '@/utils/supabase/server';
+import { requireRole } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 cloudinary.config({
@@ -17,7 +17,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function uploadImage(base64Image: string) {
   try {
-    await checkAuth(); // Proteger la ruta
+    await requireRole(['admin', 'editor']); // Proteger la ruta
     const result = await cloudinary.uploader.upload(base64Image, {
       folder: 'crossover_blog'
     });
@@ -37,7 +37,7 @@ export async function createNoticia(data: {
   contenido_html: string;
 }) {
   try {
-    await checkAuth(); // Proteger la ruta
+    await requireRole(['admin', 'editor']); // Proteger la ruta
     
     // CANDADO ANTI-CHOQUES: Verificar si el slug ya existe
     const { data: existing } = await supabase.from('noticias').select('id').eq('slug', data.slug).maybeSingle();
@@ -64,7 +64,7 @@ export async function createNoticia(data: {
 
 export async function deleteNoticia(id: number) {
   try {
-    await checkAuth(); // Proteger la ruta
+    await requireRole(['admin', 'editor']); // Proteger la ruta
     const { error } = await supabase.from('noticias').delete().eq('id', id);
     if (error) {
       return { success: false, error: error.message };
@@ -86,7 +86,7 @@ export async function updateNoticia(id: number, data: {
   contenido_html: string;
 }) {
   try {
-    await checkAuth(); // Proteger la ruta
+    await requireRole(['admin', 'editor']); // Proteger la ruta
     const { error } = await supabase.from('noticias').update(data).eq('id', id);
     if (error) {
       console.error("Supabase update error:", error);

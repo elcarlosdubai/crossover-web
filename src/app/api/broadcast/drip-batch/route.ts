@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { enviarMensajeWhatsApp } from "@/lib/whatsapp";
 import { enviarEmailConfirmacion } from "@/lib/email";
+import { requireRole, authErrorResponse } from "@/utils/supabase/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -28,6 +29,7 @@ export interface BroadcastBatchPayload {
 
 export async function POST(req: Request) {
   try {
+    await requireRole(["admin", "director", "recepcion"]);
     const body: BroadcastBatchPayload = await req.json();
     const { canal, asunto, plantillaMensaje, isHtml, contactos, modoVelocidad = "sigiloso" } = body;
 
@@ -154,6 +156,8 @@ export async function POST(req: Request) {
       detalles: resultados,
     });
   } catch (err: any) {
+    const authRes = authErrorResponse(err);
+    if (authRes) return authRes;
     console.error("Error en /api/broadcast/drip-batch:", err);
     return NextResponse.json(
       { error: err.message || "Error interno del servidor" },

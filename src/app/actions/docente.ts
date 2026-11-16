@@ -2,6 +2,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
+import { getTodayRD } from '@/lib/dateRD';
+import { requireRole } from '@/utils/supabase/server';
+
+const ROLES_DOCENTE = ['admin', 'director', 'profesor'];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy';
@@ -10,6 +14,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // Obtener los cursos asignados al docente o todos si es Admin/Director
 export async function getCursosDocente(profesorEmail?: string, userRol?: string) {
   try {
+    await requireRole(ROLES_DOCENTE);
     let query = supabase
       .from('cursos')
       .select(`
@@ -44,7 +49,8 @@ export async function getCursosDocente(profesorEmail?: string, userRol?: string)
 // Obtener datos completos de la clase seleccionada (estudiantes, criterios, asistencia de hoy, notas registradas)
 export async function getDetalleCursoDocente(cursoId: string, fecha?: string) {
   try {
-    const targetDate = fecha || new Date().toISOString().split('T')[0];
+    await requireRole(ROLES_DOCENTE);
+    const targetDate = fecha || getTodayRD();
 
     // 1. Curso con sus criterios configurados por el Director
     const { data: curso, error: cErr } = await supabase
@@ -103,9 +109,14 @@ export async function getDetalleCursoDocente(cursoId: string, fecha?: string) {
   }
 }
 
-// Guardar pase de lista diario
-export async function guardarAsistenciaDocente(cursoId: string, fecha: string, registros: { estudiante_id: string; estado: 'PRESENTE' | 'AUSENTE' | 'TARDANZA' }[]) {
+// Guardar pase de lista diario (soporta PRESENTE, AUSENTE, TARDANZA, EXCUSADO y motivo)
+export async function guardarAsistenciaDocente(
+  cursoId: string,
+  fecha: string,
+  registros: { estudiante_id: string; estado: 'PRESENTE' | 'AUSENTE' | 'TARDANZA' | 'EXCUSADO'; observaciones?: string }[]
+) {
   try {
+    await requireRole(ROLES_DOCENTE);
     for (const r of registros) {
       const { data: existing } = await supabase
         .from('asistencias')
@@ -114,13 +125,16 @@ export async function guardarAsistenciaDocente(cursoId: string, fecha: string, r
         .eq('fecha', fecha)
         .maybeSingle();
 
+      const payload: Record<string, any> = {
+        estado: r.estado,
+        atencion_recepcion: r.estado === 'AUSENTE' ? 'PENDIENTE' : 'NINGUNA',
+        observaciones: r.observaciones || null
+      };
+
       if (existing) {
         await supabase
           .from('asistencias')
-          .update({
-            estado: r.estado,
-            atencion_recepcion: r.estado === 'AUSENTE' ? 'PENDIENTE' : 'NINGUNA'
-          })
+          .update(payload)
           .eq('id', existing.id);
       } else {
         await supabase
@@ -129,17 +143,135 @@ export async function guardarAsistenciaDocente(cursoId: string, fecha: string, r
             curso_id: cursoId,
             estudiante_id: r.estudiante_id,
             fecha,
-            estado: r.estado,
-            atencion_recepcion: r.estado === 'AUSENTE' ? 'PENDIENTE' : 'NINGUNA'
+            ...payload
           });
       }
     }
 
     revalidatePath('/admin/dashboard/calificaciones');
     revalidatePath('/admin/dashboard/asistencia');
+    revalidatePath('/admin/dashboard');
     return { success: true };
   } catch (err: any) {
     console.error("Error guardando asistencias:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+// Resumen rápido de los cursos del docente para tarjetas y KPIs
+export async function getResumenCursosDocente(profesorEmail?: string, userRol?: string) {
+  try {
+    await requireRole(ROLES_DOCENTE);
+    const cursos = await getCursosDocente(profesorEmail, userRol);
+    if (!cursos || cursos.length === 0) return [];
+
+    const today = getTodayRD();
+    const cursoIds = cursos.map((c: any) => c.id);
+
+    const [{ data: estudiantes }, { data: asistenciasHoy }] = await Promise.all([
+      supabase
+        .from('estudiantes')
+        .select('id, curso_id')
+        .in('curso_id', cursoIds)
+        .eq('estado', 'ACTIVO'),
+      supabase
+        .from('asistencias')
+        .select('id, curso_id, estado')
+        .in('curso_id', cursoIds)
+        .eq('fecha', today)
+    ]);
+
+    return cursos.map((c: any) => {
+      const estCurso = (estudiantes || []).filter((e: any) => e.curso_id === c.id);
+      const asistCurso = (asistenciasHoy || []).filter((a: any) => a.curso_id === c.id);
+      const ausenciasHoy = asistCurso.filter((a: any) => a.estado === 'AUSENTE').length;
+      const excusadosHoy = asistCurso.filter((a: any) => a.estado === 'EXCUSADO').length;
+
+      return {
+        ...c,
+        estudiantesCount: estCurso.length,
+        listaPasadaHoy: asistCurso.length > 0,
+        ausenciasHoy,
+        excusadosHoy
+      };
+    });
+  } catch (err: any) {
+    console.error("Error en getResumenCursosDocente:", err);
+    return [];
+  }
+}
+
+// Observaciones del profesor por estudiante (guardadas en registro_comunicaciones)
+export async function getObservacionesDocente(estudianteId: string) {
+  try {
+    await requireRole(ROLES_DOCENTE);
+    const { data, error } = await supabase
+      .from('registro_comunicaciones')
+      .select('id, contenido_preview, responsable, created_at')
+      .eq('tipo_evento', 'observacion_docente')
+      .eq('destinatario_contacto', estudianteId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error) throw error;
+    return data || [];
+  } catch (err: any) {
+    console.error("Error en getObservacionesDocente:", err);
+    return [];
+  }
+}
+
+export async function agregarObservacionDocente(estudianteId: string, estudianteNombre: string, profesorNombre: string, texto: string) {
+  try {
+    await requireRole(ROLES_DOCENTE);
+    const { error } = await supabase
+      .from('registro_comunicaciones')
+      .insert({
+        canal: 'sistema',
+        tipo_evento: 'observacion_docente',
+        destinatario_nombre: estudianteNombre,
+        destinatario_contacto: estudianteId,
+        asunto_o_titulo: 'Observación de aula',
+        contenido_preview: texto,
+        estado: 'completado',
+        responsable: profesorNombre
+      });
+
+    if (error) throw error;
+    return { success: true };
+  } catch (err: any) {
+    console.error("Error en agregarObservacionDocente:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+export async function solicitarSeguimientoRecepcion(
+  cursoNombre: string,
+  estudianteNombre: string,
+  tutorTelefono: string,
+  profesorNombre: string,
+  motivo: string
+) {
+  try {
+    await requireRole(ROLES_DOCENTE);
+    const { error } = await supabase
+      .from('registro_comunicaciones')
+      .insert({
+        canal: 'llamada',
+        tipo_evento: 'seguimiento_docente',
+        destinatario_nombre: estudianteNombre,
+        destinatario_contacto: tutorTelefono || 'Sin teléfono',
+        asunto_o_titulo: `Solicitud de ${profesorNombre} (${cursoNombre})`,
+        contenido_preview: motivo,
+        estado: 'pendiente',
+        responsable: 'Recepción'
+      });
+
+    if (error) throw error;
+    revalidatePath('/admin/dashboard');
+    return { success: true };
+  } catch (err: any) {
+    console.error("Error en solicitarSeguimientoRecepcion:", err);
     return { success: false, error: err.message };
   }
 }
@@ -149,6 +281,7 @@ export async function guardarCalificacionesDocente(
   calificaciones: { estudiante_id: string; criterio_id: string; calificacion: number; periodo?: number }[]
 ) {
   try {
+    await requireRole(ROLES_DOCENTE);
     for (const item of calificaciones) {
       const periodoVal = item.periodo && item.periodo >= 1 ? item.periodo : 1;
       

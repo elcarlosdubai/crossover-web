@@ -24,9 +24,14 @@ const ROLES_INFO: Record<RolUsuario, { label: string; badgeClass: string; desc: 
     desc: "Supervisión de cursos, calificaciones y asistencia",
   },
   recepcion: {
-    label: "Recepción & Caja",
+    label: "Recepción & Triaje",
     badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    desc: "Cobros, recibos, inscripciones y llamadas",
+    desc: "Asistencia, leads, recibos e inscripciones",
+  },
+  caja: {
+    label: "Caja & Cobros",
+    badgeClass: "bg-teal-50 text-teal-700 border-teal-200",
+    desc: "Cuaderno de inscripciones, cobros, deudores, cierre y POS",
   },
   profesor: {
     label: "Cuerpo Docente",
@@ -273,7 +278,8 @@ export default function UsuariosAdmin() {
             <option value="todos">Todos los Roles ({usuarios.length})</option>
             <option value="admin">Súper Administrador</option>
             <option value="director">Director Académico</option>
-            <option value="recepcion">Recepción & Caja</option>
+            <option value="recepcion">Recepción & Triaje</option>
+            <option value="caja">Caja & Cobros</option>
             <option value="profesor">Cuerpo Docente</option>
             <option value="editor">Editor de Noticias</option>
           </select>
@@ -550,7 +556,8 @@ export default function UsuariosAdmin() {
                     onChange={(e) => setNuevoRol(e.target.value as RolUsuario)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-2.5 py-2 text-xs font-bold text-gray-800 focus:outline-none"
                   >
-                    <option value="recepcion">Recepción & Caja</option>
+                    <option value="recepcion">Recepción & Triaje</option>
+            <option value="caja">Caja & Cobros</option>
                     <option value="profesor">Cuerpo Docente</option>
                     <option value="director">Director Académico</option>
                     <option value="editor">Editor de Noticias</option>
@@ -647,7 +654,8 @@ export default function UsuariosAdmin() {
                   onChange={(e) => setEditRol(e.target.value as RolUsuario)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 focus:outline-none"
                 >
-                  <option value="recepcion">Recepción & Caja</option>
+                  <option value="recepcion">Recepción & Triaje</option>
+            <option value="caja">Caja & Cobros</option>
                   <option value="profesor">Cuerpo Docente</option>
                   <option value="director">Director Académico</option>
                   <option value="editor">Editor de Noticias</option>
