@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  title: "Nosotros",
+  description:
+    "Conoce la historia, misión, visión y valores de Centro Educativo Crossover en Santo Domingo, República Dominicana.",
+  alternates: { canonical: "/nosotros" },
+};
 
 export default function NosotrosPage() {
   const valores = [

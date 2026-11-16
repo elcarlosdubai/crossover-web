@@ -95,7 +95,15 @@ export default function InscripcionPage() {
         throw new Error(data.error || "No se pudo procesar la solicitud.");
       }
 
-      // Éxito: pasar a ver cuentas bancarias y requisitos
+      // Éxito: registrar evento de conversión en Tag Manager / Google Ads y pasar a cuentas
+      if (typeof window !== "undefined") {
+        (window as any).dataLayer = (window as any).dataLayer || [];
+        (window as any).dataLayer.push({
+          event: "generate_lead",
+          lead_area: activeArea || "instituto",
+          lead_curso: activeCourse,
+        });
+      }
       setIsFormSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err: any) {

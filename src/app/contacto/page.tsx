@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import React from "react";
+
+export const metadata: Metadata = {
+  title: "Contacto y Ubicación",
+  description:
+    "Contáctanos en Avenida Las Palmas #58, Santo Domingo. Teléfono (809) 922-0880, WhatsApp y horarios de atención de Centro Educativo Crossover.",
+  alternates: { canonical: "/contacto" },
+};
 
 export default function ContactoPage() {
   const extensions = [
