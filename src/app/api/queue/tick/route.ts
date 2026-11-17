@@ -61,15 +61,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, processed: 0, reason: "outside_broadcast_hours" });
     }
 
-    // Lock atómico en Supabase
+    // Lock atómico compatible con registro_comunicaciones_estado_check (solo permite pendiente/enviado/fallido/completado)
     const { data: claimed, error: claimErr } = await supabase
       .from("registro_comunicaciones")
-      .update({ estado: "en_proceso" })
+      .update({ estado: "fallido", motivo_error: "Procesando envío..." })
       .eq("id", item.id)
       .eq("estado", "pendiente")
       .select("id");
 
-    if (claimErr || !claimed || claimed.length === 0) {
+    if (claimErr) {
+      return NextResponse.json({ ok: false, error: claimErr.message }, { status: 500 });
+    }
+    if (!claimed || claimed.length === 0) {
       return NextResponse.json({ ok: true, processed: 0, reason: "already_claimed" });
     }
 
