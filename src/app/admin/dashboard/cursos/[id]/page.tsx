@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getDetalleCursoCompleto, getProfesores } from "@/app/actions/cursos";
 import CursoDetalleClient from "./CursoDetalleClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function CursoDetallePage({ params }: { params: { id: string } }) {
   const [res, profesores, cursosDisponibles] = await Promise.all([
     getDetalleCursoCompleto(params.id),

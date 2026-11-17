@@ -4,6 +4,8 @@ import { getExpedienteCompletoEstudiante } from "@/app/actions/estudiantes";
 import { getCursos } from "@/app/actions/cursos";
 import EstudianteDetalleClient from "./EstudianteDetalleClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function EstudianteDetallePage({ params }: { params: { id: string } }) {
   const [expediente, cursos] = await Promise.all([
     getExpedienteCompletoEstudiante(params.id),

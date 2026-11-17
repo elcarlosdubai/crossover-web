@@ -6,9 +6,13 @@ export async function GET() {
     return NextResponse.json({ error: 'No Instagram token found' }, { status: 500 });
   }
 
+  const igBusinessId = process.env.INSTAGRAM_BUSINESS_ID || '17841400951047032';
+
   try {
-    const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&access_token=${token}`;
-    
+    const url = token.startsWith('EAA')
+      ? `https://graph.facebook.com/v21.0/${igBusinessId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&access_token=${token}`
+      : `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&access_token=${token}`;
+
     const response = await fetch(url, { next: { revalidate: 3600 } }); // Cache for 1 hour
     const data = await response.json();
 
