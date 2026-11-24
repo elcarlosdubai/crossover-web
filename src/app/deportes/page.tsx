@@ -45,7 +45,7 @@ const deportes = [
     beneficios: "Fortalece las piernas, mejora la capacidad aeróbica y fomenta la estrategia de grupo.",
     horarios: [
       "• Miércoles: 2:00pm - 5:00pm (5 a 9 años)",
-      "• Viernes: 2:00pm - 5:00pm (10 a 15 años)"
+      "• Viernes: 4:00pm - 5:00pm (10 a 15 años)"
     ],
     etiqueta: "¡Pura Adrenalina!",
     linkParams: "?area=deportes&curso=Soccer (Fútbol)"

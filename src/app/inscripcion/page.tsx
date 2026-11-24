@@ -355,7 +355,7 @@ export default function InscripcionPage() {
       },
       { 
         nombre: "Informática Avanzada", 
-        desc: "Word/Excel avanzado y fundamentos de Redes. Basado en proyectos prácticos.",
+        desc: "Word/Excel avanzado y fundamentos de Redes. Requisito: haber aprobado Informática Básica.",
         beneficios: ["Automatiza tareas con fórmulas avanzadas en Excel.", "Comprende cómo funcionan las redes de computadoras (IP, routers).", "Ideal para quienes buscan trabajo como asistentes administrativos o soporte técnico."]
       }
     ];
@@ -473,7 +473,7 @@ export default function InscripcionPage() {
 
             <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-8">
               <h4 className="font-bold text-yellow-900 mb-1 flex items-center gap-2"><span className="material-symbols-outlined">info</span> Fechas Importantes</h4>
-              <p className="text-sm text-yellow-800 mb-2"><strong>¡Atención! Fecha Límite de Inscripción: Lunes 28 de Septiembre 2026</strong></p><p className="text-sm text-yellow-800">Inicio de clases: <strong>1 o 3 de Octubre 2026</strong><br/>Inducción (Obligatoria): <strong>8 o 10 de Octubre 2026</strong></p>
+              <p className="text-sm text-yellow-800 mb-2"><strong>Fecha Límite de Inscripción: Miércoles 6 de Enero 2027</strong></p><p className="text-sm text-yellow-800">Inicio de clases: <strong>Jueves 7 y Sábado 9 de Enero 2027</strong><br/>Inducción (mismo horario del estudiante): <strong>Jueves 14 y Sábado 16 de Enero 2027</strong></p>
             </div>
           </div>
 
@@ -481,12 +481,14 @@ export default function InscripcionPage() {
             <h3 className="font-bold text-lg mb-4 border-b border-black/10 pb-4">Inversión</h3>
             <p className="text-sm text-on-background-muted mb-1">Inscripción (Incluye 1er mes)</p>
             <p className="font-display text-3xl font-black text-on-background mb-2">RD$ 2,500</p>
-            <div className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded inline-block mb-4">
-              OFERTA: RD$ 2,000 hasta el 25 de Septiembre
+            <div className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded inline-block mb-3">
+              OFERTA: RD$ 2,000 hasta el 18 de Diciembre 2026
             </div>
             
             <p className="text-sm text-on-background-muted mb-1">Mensualidad</p>
-            <p className="font-display text-2xl font-bold text-primary mb-6">RD$ 1,600</p>
+            <p className="font-display text-2xl font-bold text-primary mb-2">RD$ 1,600</p>
+            <p className="text-xs text-on-background-muted mb-1">Libro (solo para Inglés): <strong>RD$ 1,700</strong></p>
+            <p className="text-[11px] text-red-600 font-medium mb-5">Nota: El monto pagado por inscripción no es reembolsable bajo ninguna circunstancia.</p>
 
             <button onClick={handleShowForm} className="block text-center w-full bg-primary text-white px-6 py-4 rounded-full font-bold uppercase tracking-widest hover:scale-105 shadow-lg transition-all">
               ¡Inscribirme Ahora!
@@ -562,9 +564,9 @@ export default function InscripcionPage() {
     } else if (activeCourse === "Volleyball") {
       schedule = ["Martes | 4:00pm - 6:00pm", "Sábados | 8:00am - 10:00am"];
     } else if (activeCourse === "Fútbol" || activeCourse === "Soccer (Fútbol)") {
-      schedule = ["Miércoles | 2:00pm - 5:00pm (5 a 9 años)", "Viernes | 2:00pm - 5:00pm (10 a 15 años)"];
+      schedule = ["Miércoles | 2:00pm - 5:00pm (5 a 9 años)", "Viernes | 4:00pm - 5:00pm (10 a 15 años)"];
     } else if (activeCourse === "Karate") {
-      schedule = ["Martes | 2:00pm - 4:00pm", "Sábados | 8:30am - 12:00pm", "Sábados | 4:00pm - 6:00pm"];
+      schedule = ["Martes | 2:00pm - 4:00pm", "Sábados | 9:00am - 12:00pm", "Sábados | 4:00pm - 6:00pm"];
     }
 
     if (isFormSubmitted) {
@@ -575,7 +577,9 @@ export default function InscripcionPage() {
       return renderLeadForm(schedule, activeCourse, "Deportes Crossover");
     }
 
-    const sportDetails = sports.find((s) => s.nombre === activeCourse);
+    const sportDetails = sports.find(
+      (s) => s.nombre === activeCourse || (activeCourse === "Soccer (Fútbol)" && s.nombre === "Fútbol")
+    );
     return (
       <div className="animate-fade-in-up bg-white p-8 md:p-12 rounded-[2rem] border border-black/5 shadow-xl max-w-4xl mx-auto">
         <button onClick={() => handleCourseChange(null)} className="text-on-background-muted hover:text-primary flex items-center gap-1 md:gap-2 text-xs md:text-sm font-bold uppercase tracking-wider mb-4 md:mb-8">
@@ -616,9 +620,10 @@ export default function InscripcionPage() {
               ))}
             </ul>
 
-                        <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-8">
-              <h4 className="font-bold text-yellow-900 mb-1 flex items-center gap-2"><span className="material-symbols-outlined">event</span> Fecha Límite</h4>
-              <p className="text-sm text-yellow-800">Inscripción límite: <strong>Lunes 28 de Septiembre 2026</strong></p>
+            <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-8">
+              <h4 className="font-bold text-yellow-900 mb-1 flex items-center gap-2"><span className="material-symbols-outlined">event</span> Inicio de Clases (Enero 2027)</h4>
+              <p className="text-sm text-yellow-800 mb-1">Jueves 7 · Viernes 8 · Sábado 9 · Martes 12 · Miércoles 13 de Enero 2027</p>
+              <p className="text-xs text-yellow-800 font-semibold">Nota: Se aceptan estudiantes a partir de los 5 años.</p>
             </div>
             <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 mb-8">
               <h4 className="font-bold text-blue-900 mb-1 flex items-center gap-2"><span className="material-symbols-outlined">styler</span> Uniformes</h4>
@@ -819,7 +824,7 @@ export default function InscripcionPage() {
         <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10 text-center">
           {!activeArea && <span className="material-symbols-outlined text-4xl md:text-5xl text-[#ffcc00] mb-2 md:mb-4">how_to_reg</span>}
           <h1 className={`text-white font-display font-black tracking-tight uppercase transition-all duration-500 ${activeArea ? 'text-2xl md:text-4xl mb-0' : 'text-3xl md:text-6xl mb-4 md:mb-6'}`}>
-            Inscripciones <span className="text-primary">2026</span>
+            Inscripciones <span className="text-primary">2027</span>
           </h1>
           
         </div>

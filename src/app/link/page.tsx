@@ -21,6 +21,7 @@ interface CourseOption {
   };
   prices?: {
     inscripcion?: string;
+    inscripcionDetalle?: string;
     mensualidad?: string;
     nota?: string;
   };
@@ -48,16 +49,17 @@ const CATEGORIES: {
         name: "Inglés Básico Niños (5 a 7 años)",
         ages: "Edad: 5 a 7 años",
         duration: "9 meses (3 meses cada nivel)",
-        badge: "⭐ Inicio Próximo Mes",
+        badge: "⭐ Inicio Enero 2027",
         fechasImportantes: {
-          limite: "Lunes 28 de Septiembre 2026",
-          inicio: "1 o 3 de Octubre 2026",
-          induccion: "8 o 10 de Octubre 2026",
+          limite: "6 de Enero 2027",
+          inicio: "Jueves 7 o Sábado 9 de Enero 2027",
+          induccion: "Jueves 14 o Sábado 16 de Enero 2027 (mismo horario)",
         },
         prices: {
           inscripcion: "RD$ 2,000 (Oferta)",
+          inscripcionDetalle: "Válida hasta 18 Dic 2026 · Regular RD$ 2,500 (incluye 1er mes)",
           mensualidad: "RD$ 1,600 / mes",
-          nota: "Material de apoyo requerido (Libro: RD$ 1,700)."
+          nota: "Libro: RD$ 1,700 (solo para Inglés). El monto pagado por inscripción no es reembolsable."
         },
         beneficios: [
           "Aprenderán jugando con dinámicas 100% naturales.",
@@ -74,14 +76,15 @@ const CATEGORIES: {
         ages: "Edad: 7 a 12 años",
         duration: "1 año y 6 meses (3 meses por nivel)",
         fechasImportantes: {
-          limite: "Lunes 28 de Septiembre 2026",
-          inicio: "1 o 3 de Octubre 2026",
-          induccion: "8 o 10 de Octubre 2026",
+          limite: "6 de Enero 2027",
+          inicio: "Jueves 7 o Sábado 9 de Enero 2027",
+          induccion: "Jueves 14 o Sábado 16 de Enero 2027 (mismo horario)",
         },
         prices: {
           inscripcion: "RD$ 2,000 (Oferta)",
+          inscripcionDetalle: "Válida hasta 18 Dic 2026 · Regular RD$ 2,500 (incluye 1er mes)",
           mensualidad: "RD$ 1,600 / mes",
-          nota: "Material de apoyo requerido (Libro: RD$ 1,700)."
+          nota: "Libro: RD$ 1,700 (solo para Inglés). El monto pagado por inscripción no es reembolsable."
         },
         beneficios: [
           "Metodología 100% conversacional e interactiva.",
@@ -100,10 +103,16 @@ const CATEGORIES: {
         name: "Inglés Adolescentes (13 a 17 años)",
         ages: "Edad: 13 a 17 años",
         duration: "1 año (3 meses por nivel)",
+        fechasImportantes: {
+          limite: "6 de Enero 2027",
+          inicio: "Jueves 7 o Sábado 9 de Enero 2027",
+          induccion: "Jueves 14 o Sábado 16 de Enero 2027 (mismo horario)",
+        },
         prices: {
           inscripcion: "RD$ 2,000 (Oferta)",
+          inscripcionDetalle: "Válida hasta 18 Dic 2026 · Regular RD$ 2,500 (incluye 1er mes)",
           mensualidad: "RD$ 1,600 / mes",
-          nota: "Material de apoyo requerido (Libro: RD$ 1,700)."
+          nota: "Libro: RD$ 1,700 (solo para Inglés). El monto pagado por inscripción no es reembolsable."
         },
         beneficios: [
           "Enfoque en debates y temas juveniles actuales.",
@@ -123,10 +132,16 @@ const CATEGORIES: {
         name: "Inglés Adultos (18+)",
         ages: "Edad: 18 años en adelante",
         duration: "1 año (3 meses por nivel)",
+        fechasImportantes: {
+          limite: "6 de Enero 2027",
+          inicio: "Jueves 7 o Sábado 9 de Enero 2027",
+          induccion: "Jueves 14 o Sábado 16 de Enero 2027 (mismo horario)",
+        },
         prices: {
           inscripcion: "RD$ 2,000 (Oferta)",
+          inscripcionDetalle: "Válida hasta 18 Dic 2026 · Regular RD$ 2,500 (incluye 1er mes)",
           mensualidad: "RD$ 1,600 / mes",
-          nota: "Material de apoyo requerido (Libro: RD$ 1,700)."
+          nota: "Libro: RD$ 1,700 (solo para Inglés). El monto pagado por inscripción no es reembolsable."
         },
         beneficios: [
           "Horarios nocturnos y sabatinos para trabajadores.",
@@ -150,13 +165,20 @@ const CATEGORIES: {
     courses: [
       {
         id: "info-basica",
-        name: "Informática de Oficina (Paquete Esencial)",
+        name: "Informática Básica (Paquete de Oficina)",
         ages: "Jóvenes y Adultos (13+)",
         duration: "3 meses (100% Práctico)",
         badge: "⭐ Alta Demanda Laboral",
+        fechasImportantes: {
+          limite: "6 de Enero 2027",
+          inicio: "Sábado 9 de Enero 2027",
+          induccion: "Sábado 16 de Enero 2027 (mismo horario)",
+        },
         prices: {
-          inscripcion: "RD$ 2,000",
+          inscripcion: "RD$ 2,000 (Oferta)",
+          inscripcionDetalle: "Válida hasta 18 Dic 2026 · Regular RD$ 2,500 (incluye 1er mes)",
           mensualidad: "RD$ 1,600 / mes",
+          nota: "El monto pagado por inscripción no es reembolsable."
         },
         beneficios: [
           "Manejo profesional de Word, Excel práctico, PowerPoint e Internet corporativo.",
@@ -170,14 +192,20 @@ const CATEGORIES: {
       },
       {
         id: "info-avanzada",
-        name: "Excel Avanzado & Redes Empresariales",
+        name: "Informática Avanzada (Word, Excel Avanzado y Redes)",
         ages: "Jóvenes y Adultos (13+)",
         duration: "3 meses",
         badge: "Especialización",
+        fechasImportantes: {
+          limite: "6 de Enero 2027",
+          inicio: "Sábado 9 de Enero 2027",
+          induccion: "Sábado 16 de Enero 2027 (mismo horario)",
+        },
         prices: {
-          inscripcion: "RD$ 2,000",
+          inscripcion: "RD$ 2,000 (Oferta)",
+          inscripcionDetalle: "Válida hasta 18 Dic 2026 · Regular RD$ 2,500 (incluye 1er mes)",
           mensualidad: "RD$ 1,600 / mes",
-          nota: "Requisito: Manejo básico de computadora."
+          nota: "Requisito: Haber aprobado Informática Básica. El monto pagado por inscripción no es reembolsable."
         },
         beneficios: [
           "Fórmulas financieras, Tablas Dinámicas, gráficos y gestión de nóminas.",
@@ -196,7 +224,7 @@ const CATEGORIES: {
     title: "Colegio",
     subtitle: "Inicial, Primaria y Secundaria",
     icon: "school",
-    badge: "Admisiones 2026-2027",
+    badge: "Admisiones 2027-2028",
     courses: [
       {
         id: "col-inicial",
@@ -248,12 +276,15 @@ const CATEGORIES: {
       {
         id: "dep-basketball",
         name: "Academia de Basketball (Baloncesto)",
-        ages: "6 a 18 años (Grupos por edad)",
+        ages: "6 a 18 años (Grupos por edad · desde 5 años en general)",
         duration: "Entrenamiento Continuo",
+        fechasImportantes: {
+          inicio: "Jueves 7 o Sábado 9 de Enero 2027",
+        },
         prices: {
           inscripcion: "RD$ 1,500 (Incluye 1er mes de práctica)",
           mensualidad: "RD$ 1,000 / mes",
-          nota: "Cancha techada con piso reglamentario y entrenadores federados."
+          nota: "Cancha techada con piso reglamentario. Uniforme disponible a la venta."
         },
         beneficios: [
           "Desarrollo de fundamentos: drible, pase, tiro, defensa y táctica de juego.",
@@ -270,11 +301,15 @@ const CATEGORIES: {
       {
         id: "dep-volleyball",
         name: "Academia de Volleyball Femenino & Juvenil",
-        ages: "Niñas y Jóvenes (7 a 18 años)",
+        ages: "A partir de los 5 años",
         duration: "Entrenamiento Continuo",
+        fechasImportantes: {
+          inicio: "Martes 12 o Sábado 9 de Enero 2027",
+        },
         prices: {
           inscripcion: "RD$ 1,500 (Incluye 1er mes)",
           mensualidad: "RD$ 1,000 / mes",
+          nota: "Se aceptan estudiantes a partir de los 5 años. Uniforme disponible a la venta."
         },
         beneficios: [
           "Técnica de saque, voleo, recepción y remate en cancha techada protegida del sol.",
@@ -291,9 +326,13 @@ const CATEGORIES: {
         name: "Escuela Formativa de Fútbol",
         ages: "5 a 15 años",
         duration: "Entrenamiento Continuo",
+        fechasImportantes: {
+          inicio: "Miércoles 13 o Viernes 8 de Enero 2027",
+        },
         prices: {
           inscripcion: "RD$ 1,500 (Incluye 1er mes)",
           mensualidad: "RD$ 1,000 / mes",
+          nota: "Se aceptan estudiantes a partir de los 5 años. Uniforme disponible a la venta."
         },
         beneficios: [
           "Coordinación motriz, control de balón, pases precisos y definición.",
@@ -302,19 +341,22 @@ const CATEGORIES: {
         ],
         schedules: [
           "Miércoles: 2:00 PM - 5:00 PM (5 a 9 años)",
-          "Viernes: 2:00 PM - 5:00 PM (10 a 15 años)",
+          "Viernes: 4:00 PM - 5:00 PM (10 a 15 años)",
         ],
       },
       {
         id: "dep-karate",
         name: "Dojo de Karate & Artes Marciales",
-        ages: "Niños, Jóvenes y Adultos",
+        ages: "A partir de los 5 años",
         duration: "Entrenamiento Continuo",
         badge: "Disciplina & Defensa",
+        fechasImportantes: {
+          inicio: "Martes 12 o Sábado 9 de Enero 2027",
+        },
         prices: {
           inscripcion: "RD$ 1,500 (Incluye 1er mes)",
           mensualidad: "RD$ 1,000 / mes",
-          nota: "Exámenes de grado de cinta con aval federativo."
+          nota: "Exámenes de grado de cinta con aval federativo. Uniforme disponible a la venta."
         },
         beneficios: [
           "Autocontrol mental, respeto estricto, concentración escolar y defensa personal.",
@@ -323,7 +365,7 @@ const CATEGORIES: {
         ],
         schedules: [
           "Martes: 2:00 PM - 4:00 PM",
-          "Sábados: 8:30 AM - 12:00 PM",
+          "Sábados: 9:00 AM - 12:00 PM",
           "Sábados: 4:00 PM - 6:00 PM",
         ],
       },
@@ -789,10 +831,15 @@ function MobileLinkHubContent() {
                   <span className="text-[10px] font-black uppercase tracking-wider text-[#990000] block">
                     Inversión del Programa
                   </span>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-700">Inscripción:</span>
-                    <span className="text-sm font-black text-[#990000]">{selectedCourse.prices.inscripcion}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-gray-700 shrink-0">Inscripción:</span>
+                    <span className="text-sm font-black text-[#990000] text-right">{selectedCourse.prices.inscripcion}</span>
                   </div>
+                  {selectedCourse.prices.inscripcionDetalle && (
+                    <div className="bg-emerald-100/90 text-emerald-900 text-[10px] font-bold px-2.5 py-1 rounded-lg text-center">
+                      {selectedCourse.prices.inscripcionDetalle}
+                    </div>
+                  )}
                   {selectedCourse.prices.mensualidad && (
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-gray-700">Mensualidad:</span>

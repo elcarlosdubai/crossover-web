@@ -617,7 +617,7 @@ export default function ColegioPage() {
                 <div className="bg-surface p-6 rounded-2xl border border-black/5">
                   <h3 className="font-bold text-lg text-on-background mb-4 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary">payments</span> 
-                    Inversión (2026-2027)
+                    Inversión (2027-2028)
                   </h3>
                   
                   {(showModal === 'inicial' || showModal === 'primaria') && (
@@ -681,8 +681,8 @@ export default function ColegioPage() {
                   </div>
                   <div>
                     <div className="bg-white/10 p-3 rounded-lg border border-white/20 mb-4">
-                      <p className="text-sm mb-1"><strong className="text-[#ffcc00]">Límite de Admisión:</strong> Jueves 20 Agosto 2026</p>
-                      <p className="text-sm"><strong className="text-[#ffcc00]">Inicio de Clases:</strong> Jueves 3 Septiembre 2026</p>
+                      <p className="text-sm mb-1"><strong className="text-[#ffcc00]">Límite de Admisión:</strong> Agosto 2027</p>
+                      <p className="text-sm"><strong className="text-[#ffcc00]">Inicio de Clases:</strong> Septiembre 2027</p>
                     </div>
 
                     <h4 className="font-bold text-sm text-[#ffcc00] mb-2">Servicios y Extracurriculares</h4>
